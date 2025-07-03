@@ -9,6 +9,7 @@ import {
   Animated,
   Dimensions,
   SafeAreaView,
+  ScrollView,
   StatusBar,
   StyleSheet,
   Text,
@@ -316,141 +317,147 @@ export default function Emergency({ navigation }: any) {
         colors={['#0d1117', '#161b22', '#21262d']}
         style={styles.gradient}
       >
-        {/* Header Section */}
-        <View style={styles.header}>
-          <Animated.View style={[
-            styles.emergencyIconContainer,
-            { transform: [{ scale: pulseAnimation }] }
-          ]}>
-            <LinearGradient
-              colors={['#ff4444', '#cc0000']}
-              style={styles.emergencyIcon}
-            >
-              <Ionicons name="warning" size={52} color="#fff" />
-            </LinearGradient>
-          </Animated.View>
-          
-          <Text style={styles.title}>Emergency Mode</Text>
-          <Text style={styles.subtitle}>
-            {isCompleted 
-              ? 'Emergency alert sent!' 
-              : hasError 
-                ? 'Processing failed'
-                : 'Processing emergency data...'
-            }
-          </Text>
-          
-          {/* Overall Progress Bar */}
-          <View style={styles.overallProgressContainer}>
-            <View style={styles.overallProgressBar}>
-              <Animated.View 
-                style={[
-                  styles.overallProgressFill,
-                  {
-                    width: progressAnimation.interpolate({
-                      inputRange: [0, 100],
-                      outputRange: ['0%', '100%'],
-                    }),
-                  }
-                ]} 
-              />
-            </View>
-            <Text style={styles.progressText}>{Math.round(overallProgress)}%</Text>
-          </View>
-        </View>
-
-        {/* Content Section */}
-        <View style={styles.content}>
-          <View style={styles.stepsContainer}>
-            {steps.map((step, index) => (
-              <View key={step.id} style={[
-                styles.stepItem,
-                currentStep === index && styles.activeStep,
-                step.status === 'completed' && styles.completedStep,
-                step.status === 'failed' && styles.failedStep,
-              ]}>
-                <View style={styles.stepLeft}>
-                  {getStepIcon(step)}
-                  <View style={styles.stepTexts}>
-                    <Text style={[
-                      styles.stepText,
-                      step.status === 'completed' && styles.completedText,
-                      step.status === 'failed' && styles.failedText,
-                      step.status === 'processing' && styles.processingText,
-                    ]}>
-                      {step.label}
-                    </Text>
-                    <Text style={styles.stepDescription}>
-                      {step.description}
-                    </Text>
-                  </View>
-                </View>
-                
-                {/* Individual Step Progress */}
-                {step.status !== 'pending' && (
-                  <View style={styles.stepProgressContainer}>
-                    <View style={styles.stepProgressBar}>
-                      <View 
-                        style={[
-                          styles.stepProgressFill,
-                          { 
-                            width: `${step.progress}%`,
-                            backgroundColor: getProgressBarColor(step.status)
-                          }
-                        ]} 
-                      />
-                    </View>
-                  </View>
-                )}
-              </View>
-            ))}
-          </View>
-
-          {/* Success State */}
-          {isCompleted && (
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Header Section */}
+          <View style={styles.header}>
             <Animated.View style={[
-              styles.successContainer,
-              { opacity: isCompleted ? 1 : 0 }
+              styles.emergencyIconContainer,
+              { transform: [{ scale: pulseAnimation }] }
             ]}>
               <LinearGradient
-                colors={['#4caf50', '#45a049']}
-                style={styles.successIcon}
+                colors={['#ff4444', '#cc0000']}
+                style={styles.emergencyIcon}
               >
-                <Ionicons name="shield-checkmark" size={48} color="#fff" />
+                <Ionicons name="warning" size={52} color="#fff" />
               </LinearGradient>
-              <Text style={styles.successTitle}>Alert Sent Successfully!</Text>
-              <Text style={styles.successSubtitle}>
-                {errorMessage || 'Emergency contacts have been notified with your location and data.'}
-              </Text>
-              
-              {emergencyData && (
-                <View style={styles.dataPreview}>
-                  <Text style={styles.dataTitle}>Sent Data:</Text>
-                  <Text style={styles.dataItem}>📍 Location: {emergencyData.location ? 'Included' : 'Failed'}</Text>
-                  <Text style={styles.dataItem}>📷 Photo: {emergencyData.photoUri ? 'Included' : 'Failed'}</Text>
-                  <Text style={styles.dataItem}>🎤 Audio: {emergencyData.audioUri ? 'Included' : 'Failed'}</Text>
-                </View>
-              )}
             </Animated.View>
-          )}
-
-          {/* Error State */}
-          {hasError && (
-            <View style={styles.errorContainer}>
-              <Ionicons name="alert-circle" size={64} color="#f44336" />
-              <Text style={styles.errorTitle}>Processing Failed</Text>
-              <Text style={styles.errorMessage}>{errorMessage}</Text>
-              
-              <TouchableOpacity
-                style={styles.retryButton}
-                onPress={retryEmergency}
-              >
-                <Ionicons name="refresh" size={24} color="#fff" />
-                <Text style={styles.retryText}>Retry Emergency</Text>
-              </TouchableOpacity>
+            
+            <Text style={styles.title}>Emergency Mode</Text>
+            <Text style={styles.subtitle}>
+              {isCompleted 
+                ? 'Emergency alert sent!' 
+                : hasError 
+                  ? 'Processing failed'
+                  : 'Processing emergency data...'
+              }
+            </Text>
+            
+            {/* Overall Progress Bar */}
+            <View style={styles.overallProgressContainer}>
+              <View style={styles.overallProgressBar}>
+                <Animated.View 
+                  style={[
+                    styles.overallProgressFill,
+                    {
+                      width: progressAnimation.interpolate({
+                        inputRange: [0, 100],
+                        outputRange: ['0%', '100%'],
+                      }),
+                    }
+                  ]} 
+                />
+              </View>
+              <Text style={styles.progressText}>{Math.round(overallProgress)}%</Text>
             </View>
-          )}
-        </View>
+          </View>
+
+          {/* Content Section */}
+          <View style={styles.content}>
+            <View style={styles.stepsContainer}>
+              {steps.map((step, index) => (
+                <View key={step.id} style={[
+                  styles.stepItem,
+                  currentStep === index && styles.activeStep,
+                  step.status === 'completed' && styles.completedStep,
+                  step.status === 'failed' && styles.failedStep,
+                ]}>
+                  <View style={styles.stepLeft}>
+                    {getStepIcon(step)}
+                    <View style={styles.stepTexts}>
+                      <Text style={[
+                        styles.stepText,
+                        step.status === 'completed' && styles.completedText,
+                        step.status === 'failed' && styles.failedText,
+                        step.status === 'processing' && styles.processingText,
+                      ]}>
+                        {step.label}
+                      </Text>
+                      <Text style={styles.stepDescription}>
+                        {step.description}
+                      </Text>
+                    </View>
+                  </View>
+                  
+                  {/* Individual Step Progress */}
+                  {step.status !== 'pending' && (
+                    <View style={styles.stepProgressContainer}>
+                      <View style={styles.stepProgressBar}>
+                        <View 
+                          style={[
+                            styles.stepProgressFill,
+                            { 
+                              width: `${step.progress}%`,
+                              backgroundColor: getProgressBarColor(step.status)
+                            }
+                          ]} 
+                        />
+                      </View>
+                    </View>
+                  )}
+                </View>
+              ))}
+            </View>
+
+            {/* Success State */}
+            {isCompleted && (
+              <Animated.View style={[
+                styles.successContainer,
+                { opacity: isCompleted ? 1 : 0 }
+              ]}>
+                <LinearGradient
+                  colors={['#4caf50', '#45a049']}
+                  style={styles.successIcon}
+                >
+                  <Ionicons name="shield-checkmark" size={48} color="#fff" />
+                </LinearGradient>
+                <Text style={styles.successTitle}>Alert Sent Successfully!</Text>
+                <Text style={styles.successSubtitle}>
+                  {errorMessage || 'Emergency contacts have been notified with your location and data.'}
+                </Text>
+                
+                {emergencyData && (
+                  <View style={styles.dataPreview}>
+                    <Text style={styles.dataTitle}>Sent Data:</Text>
+                    <Text style={styles.dataItem}>📍 Location: {emergencyData.location ? 'Included' : 'Failed'}</Text>
+                    <Text style={styles.dataItem}>📷 Photo: {emergencyData.photoUri ? 'Included' : 'Failed'}</Text>
+                    <Text style={styles.dataItem}>🎤 Audio: {emergencyData.audioUri ? 'Included' : 'Failed'}</Text>
+                  </View>
+                )}
+              </Animated.View>
+            )}
+
+            {/* Error State */}
+            {hasError && (
+              <View style={styles.errorContainer}>
+                <Ionicons name="alert-circle" size={64} color="#f44336" />
+                <Text style={styles.errorTitle}>Processing Failed</Text>
+                <Text style={styles.errorMessage}>{errorMessage}</Text>
+                
+                <TouchableOpacity
+                  style={styles.retryButton}
+                  onPress={retryEmergency}
+                >
+                  <Ionicons name="refresh" size={24} color="#fff" />
+                  <Text style={styles.retryText}>Retry Emergency</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+        </ScrollView>
 
         {/* Hidden camera for photo capture */}
         {permission?.granted && (
@@ -471,6 +478,13 @@ const styles = StyleSheet.create({
   },
   gradient: {
     flex: 1,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 20,
   },
   header: {
     alignItems: 'center',
