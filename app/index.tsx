@@ -20,7 +20,7 @@ export default function Index() {
           name="Settings" 
           component={Settings} 
           options={{ 
-            headerShown: true,
+            headerShown: false,
             title: 'Settings',
             headerStyle: {
               backgroundColor: '#667eea',
