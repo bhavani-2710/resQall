@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { db } from '../services/firebaseConfig'; 
+import { collection, addDoc } from 'firebase/firestore';
 import {
   View,
   Text,
@@ -188,8 +190,24 @@ export default function ResQallHome({ navigation }: { navigation: NavigationProp
       return;
     }
     
+    sendSosMessage();
+    
     navigation?.navigate('Emergency');
   };
+
+     const sendSosMessage = async () => {
+    try {
+      await addDoc(collection(db, 'sosMessages'), {
+        name: userName || 'Anonymous',
+        message: 'Help me, please!',
+        time: new Date().toISOString()
+      });
+      console.log(' SOS sent to Firestore!');
+    } catch (error) {
+      console.error('Error sending SOS:', error);
+    }
+  };
+
 
   const handleVoiceToggle = () => {
     const newListeningState = !isListening;
