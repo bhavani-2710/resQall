@@ -74,7 +74,7 @@ const SignIn = () => {
                     onPress={handleSubmit}
                     className="p-3 my-10 bg-[#CF0F47] text-black rounded-lg"
                   >
-                    <Text className="text-xl ont-semibold text-center">
+                    <Text className="text-xl font-semibold text-center">
                       Sign In
                     </Text>
                   </TouchableOpacity>
