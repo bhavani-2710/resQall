@@ -1,14 +1,16 @@
 import { useRouter } from "expo-router";
 import { Formik } from "formik";
 import {
+    Image,
     ScrollView,
     StatusBar,
     Text,
     TextInput,
     TouchableOpacity,
-    View
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import logo from "../../assets/images/logo.png";
 import userValidationSchema from "../../utils/authSchema";
 
 const SignIn = () => {
@@ -20,7 +22,12 @@ const SignIn = () => {
     <SafeAreaView className={`bg-[#000000]`}>
       <ScrollView contentContainerStyle={{ height: "100%" }}>
         <View className="m-2 flex justify-center items-center">
-          {/* <Image source={logo} style={{ height: 300, width: 300 }} /> */}
+          <View className="mt-20 mb-24">
+            <Image
+              source={logo}
+              style={{ height: 200, width: 200 }}
+            />
+          </View>
           <Text className="text-lg text-center text-white font-bold mb-10 mt-[-60]">
             Welcome Back!
           </Text>

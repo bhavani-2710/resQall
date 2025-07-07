@@ -1,14 +1,16 @@
 import { useRouter } from "expo-router";
 import { Formik } from "formik";
 import {
+    Image,
     ScrollView,
     StatusBar,
     Text,
     TextInput,
     TouchableOpacity,
-    View
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import logo from "../../assets/images/logo.png";
 import userValidationSchema from "../../utils/authSchema";
 
 const SignUp = () => {
@@ -20,7 +22,9 @@ const SignUp = () => {
     <SafeAreaView className={`bg-[#000000]`}>
       <ScrollView contentContainerStyle={{ height: "100%" }}>
         <View className="m-2 flex justify-center items-center">
-          {/* <Image source={logo} style={{ height: 300, width: 300 }} /> */}
+          <View className="mt-20 mb-24">
+            <Image source={logo} style={{ height: 200, width: 200 }} />
+          </View>
           <Text className="text-lg text-center text-white font-bold mb-10 mt-[-60]">
             Let's get you started!
           </Text>
@@ -97,22 +101,24 @@ const SignUp = () => {
             </Formik>
 
             <View>
-            <Text className="text-center text-lg font-semibold mt-[-15] mb-4 text-white">
-              <View className="border-b-2 border-[#CF0F47] p-2 mb-1 w-24" />
-              {"   "}or{"  "}{" "}
-              <View className="border-b-2 border-[#CF0F47] p-2 mb-1 w-24" />
-            </Text>
-
-            <TouchableOpacity
-              className="flex flex-row items-center justify-center"
-              onPress={() => router.push("/sign-in")}
-            >
-              <Text className="text-white font-semibold">Already a User? </Text>
-              <Text className="text-base font-semibold underline text-[#CF0F47]">
-                Sign In
+              <Text className="text-center text-lg font-semibold mt-[-15] mb-4 text-white">
+                <View className="border-b-2 border-[#CF0F47] p-2 mb-1 w-24" />
+                {"   "}or{"  "}{" "}
+                <View className="border-b-2 border-[#CF0F47] p-2 mb-1 w-24" />
               </Text>
-            </TouchableOpacity>
-          </View>
+
+              <TouchableOpacity
+                className="flex flex-row items-center justify-center"
+                onPress={() => router.push("/sign-in")}
+              >
+                <Text className="text-white font-semibold">
+                  Already a User?{" "}
+                </Text>
+                <Text className="text-base font-semibold underline text-[#CF0F47]">
+                  Sign In
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
 
