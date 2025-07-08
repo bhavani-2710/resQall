@@ -1,3 +1,4 @@
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Tabs } from "expo-router";
 import { Colors } from "../../assets/Colors.js";
@@ -19,7 +20,6 @@ const TabLayout = () => {
           fontSize: 12,
           fontWeight: "bold",
         },
-        
       }}
     >
       <Tabs.Screen
@@ -37,6 +37,15 @@ const TabLayout = () => {
           title: "Profile",
           tabBarIcon: ({ color }) => (
             <Ionicons name="person-sharp" size={25} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="settings"
+        options={{
+          title: "Settings",
+          tabBarIcon: ({ color }) => (
+            <FontAwesome name="gear" size={25} color={color} />
           ),
         }}
       />

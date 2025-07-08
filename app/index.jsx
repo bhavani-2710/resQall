@@ -27,7 +27,7 @@ export default function Index() {
               <Text className="text-lg font-semibold text-center">Sign Up</Text>
             </TouchableOpacity>
 
-            {/* Home - temporary */}
+            {/* Home & Emergency - temporary */}
             <TouchableOpacity
               onPress={() => router.push("/home")}
               className="p-2 my-2 bg-[#000000] border border-[#CF0F47] rounded-lg max-w-fit"
@@ -36,6 +36,15 @@ export default function Index() {
                 Home
               </Text>
             </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => router.push("/emergency")}
+              className="p-2 my-2 bg-[#000000] border border-[#CF0F47] rounded-lg max-w-fit"
+            >
+              <Text className="text-lg font-semibold text-[#CF0F47] text-center">
+                Emergency
+              </Text>
+            </TouchableOpacity>
+
           </View>
           <View>
             <Text className="text-center text-lg font-semibold my-4 text-white">
