@@ -159,54 +159,59 @@ export default function ResQallHome({ navigation }: { navigation: NavigationProp
     return 'Good Evening';
   };
 
-  const handleSOSPress = () => {
-    // Scale animation feedback
-    Animated.sequence([
-      Animated.timing(sosScaleAnim, {
-        toValue: 0.95,
-        duration: 100,
-        useNativeDriver: true,
-      }),
-      Animated.timing(sosScaleAnim, {
-        toValue: 1,
-        duration: 100,
-        useNativeDriver: true,
-      }),
-    ]).start();
+const handleSOSPress = async () => {
+  // Scale animation feedback
+  Animated.sequence([
+    Animated.timing(sosScaleAnim, {
+      toValue: 0.95,
+      duration: 100,
+      useNativeDriver: true,
+    }),
+    Animated.timing(sosScaleAnim, {
+      toValue: 1,
+      duration: 100,
+      useNativeDriver: true,
+    }),
+  ]).start();
 
-    if (!hasContacts) {
-      Alert.alert(
-        '⚠️ No Emergency Contacts',
-        'Please configure emergency contacts in Settings before using SOS.',
-        [
-          { text: 'Cancel', style: 'cancel' },
-          { 
-            text: 'Setup Now', 
-            onPress: () => navigation?.navigate('Settings'),
-            style: 'default'
-          }
-        ]
-      );
-      return;
-    }
-    
-    sendSosMessage();
-    
+  if (!hasContacts) {
+    Alert.alert(
+      '⚠️ No Emergency Contacts',
+      'Please configure emergency contacts in Settings before using SOS.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Setup Now', 
+          onPress: () => navigation?.navigate('Settings'),
+          style: 'default'
+        }
+      ]
+    );
+    return;
+  }
+
+  try {
+    await sendSosMessage();
     navigation?.navigate('Emergency');
-  };
+  } catch (error) {
+    Alert.alert("❌ Failed to send SOS", "Please try again.");
+  }
+};
 
-     const sendSosMessage = async () => {
-    try {
-      await addDoc(collection(db, 'sosMessages'), {
-        name: userName || 'Anonymous',
-        message: 'Help me, please!',
-        time: new Date().toISOString()
-      });
-      console.log(' SOS sent to Firestore!');
-    } catch (error) {
-      console.error('Error sending SOS:', error);
-    }
-  };
+const sendSosMessage = async () => {
+  try {
+    await addDoc(collection(db, 'sosMessage'), {
+      name: userName || 'Anonymous',
+      message: 'Help me, please!',
+      time: new Date().toISOString()
+    });
+    console.log('SOS sent to Firestore!');
+  } catch (error) {
+    console.error('Error sending SOS:', error);
+    throw error; // important so the outer try/catch can handle it
+  }
+};
+
 
 
   const handleVoiceToggle = () => {
