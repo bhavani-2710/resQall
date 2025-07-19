@@ -1,8 +1,4 @@
-// services/emergencyService.ts (Fixed TypeScript Issues)
-
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Audio } from 'expo-av';
-import { CameraView } from 'expo-camera';
 import * as Device from 'expo-device';
 import * as Location from 'expo-location';
 import * as MailComposer from 'expo-mail-composer';
@@ -10,51 +6,27 @@ import * as MediaLibrary from 'expo-media-library';
 import * as SMS from 'expo-sms';
 import { Platform } from 'react-native';
 
-export interface EmergencyContact {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  relationship: string;
-  priority: 'high' | 'medium' | 'low';
-}
-
-export interface EmergencyData {
-  location: Location.LocationObject | null;
-  photoUri: string | null;
-  audioUri: string | null;
-  timestamp: number;
-  deviceInfo: {
-    deviceName: string;
-    platform: string;
-    osVersion: string;
-    deviceId: string;
-  };
-  batteryLevel?: number;
-  networkInfo?: {
-    isConnected: boolean;
-    type: string;
-  };
-}
-
 export class EmergencyService {
-  private static instance: EmergencyService;
-  private emergencyContacts: EmergencyContact[] = [];
-  private isRecording = false;
-  private recording: Audio.Recording | null = null;
+  static instance;
 
-  private constructor() {
+  constructor() {
+    if (EmergencyService.instance) {
+      return EmergencyService.instance;
+    }
+    EmergencyService.instance = this;
+    this.emergencyContacts = [];
+    this.isRecording = false;
     this.loadEmergencyContacts();
   }
 
-  public static getInstance(): EmergencyService {
+  static getInstance() {
     if (!EmergencyService.instance) {
       EmergencyService.instance = new EmergencyService();
     }
     return EmergencyService.instance;
   }
 
-  private async loadEmergencyContacts() {
+  async loadEmergencyContacts() {
     try {
       const contactsJson = await AsyncStorage.getItem('emergency_contacts');
       if (contactsJson) {
@@ -65,15 +37,13 @@ export class EmergencyService {
     }
   }
 
-  async getLocation(): Promise<Location.LocationObject | null> {
+  async getLocation() {
     try {
-      // Request location permissions
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
         throw new Error('Location permission not granted');
       }
 
-      // Get current location with high accuracy
       const location = await Location.getCurrentPositionAsync({
         accuracy: Location.Accuracy.BestForNavigation,
         timeInterval: 1000,
@@ -84,7 +54,6 @@ export class EmergencyService {
     } catch (error) {
       console.error('Failed to get location:', error);
       
-      // Try to get last known location as fallback
       try {
         const lastLocation = await Location.getLastKnownPositionAsync();
         return lastLocation;
@@ -95,26 +64,23 @@ export class EmergencyService {
     }
   }
 
-  async takePhoto(cameraRef: React.RefObject<CameraView>): Promise<string | null> {
+  async takePhoto(cameraRef) {
     try {
       if (!cameraRef.current) {
         throw new Error('Camera not available');
       }
 
-      // Request media library permissions
       const { status } = await MediaLibrary.requestPermissionsAsync();
       if (status !== 'granted') {
         console.warn('Media library permission not granted');
       }
 
-      // Take photo
       const photo = await cameraRef.current.takePictureAsync({
         quality: 0.7,
         base64: false,
         skipProcessing: false,
       });
 
-      // Save to device storage
       if (status === 'granted') {
         await MediaLibrary.saveToLibraryAsync(photo.uri);
       }
@@ -126,44 +92,31 @@ export class EmergencyService {
     }
   }
 
-  async recordAudio(): Promise<string | null> {
+  async recordVideo(cameraRef) {
     try {
-      // Request audio permissions
-      const { status } = await Audio.requestPermissionsAsync();
-      if (status !== 'granted') {
-        throw new Error('Audio permission not granted');
+      if (!cameraRef.current) {
+        throw new Error('Camera not available');
       }
 
-      // Set audio mode for recording
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: true,
-        playsInSilentModeIOS: true,
+      this.isRecording = true;
+      const promise = cameraRef.current.recordAsync({
+        quality: '480p', // Balanced quality for emergency use; adjust as needed
       });
 
-      // Start recording
-      const { recording } = await Audio.Recording.createAsync(
-        Audio.RecordingOptionsPresets.HIGH_QUALITY
-      );
-      
-      this.recording = recording;
-      this.isRecording = true;
+      await new Promise(resolve => setTimeout(resolve, 10000)); // Record for 10 seconds
 
-      // Record for 10 seconds
-      await new Promise(resolve => setTimeout(resolve, 10000));
+      cameraRef.current.stopRecording();
+      const video = await promise;
 
-      // Stop recording
-      await recording.stopAndUnloadAsync();
       this.isRecording = false;
-
-      const uri = recording.getURI();
-      return uri;
+      return video.uri;
     } catch (error) {
-      console.error('Failed to record audio:', error);
-      if (this.recording) {
+      console.error('Failed to record video:', error);
+      if (this.isRecording && cameraRef.current) {
         try {
-          await this.recording.stopAndUnloadAsync();
+          cameraRef.current.stopRecording();
         } catch (stopError) {
-          console.error('Failed to stop recording:', stopError);
+          console.error('Failed to stop video recording:', stopError);
         }
       }
       this.isRecording = false;
@@ -171,7 +124,7 @@ export class EmergencyService {
     }
   }
 
-  private async getDeviceInfo() {
+  async getDeviceInfo() {
     return {
       deviceName: Device.deviceName || 'Unknown Device',
       platform: Platform.OS,
@@ -180,27 +133,26 @@ export class EmergencyService {
     };
   }
 
-  async collectEmergencyData(cameraRef: React.RefObject<CameraView>): Promise<EmergencyData> {
+  async collectEmergencyData(cameraRef) {
     const timestamp = Date.now();
     
-    // Collect all data in parallel for faster processing
-    const [location, photoUri, audioUri, deviceInfo] = await Promise.all([
+    const [location, photoUri, videoUri, deviceInfo] = await Promise.all([
       this.getLocation(),
       this.takePhoto(cameraRef),
-      this.recordAudio(),
+      this.recordVideo(cameraRef),
       this.getDeviceInfo(),
     ]);
 
     return {
       location,
       photoUri,
-      audioUri,
+      videoUri,
       timestamp,
       deviceInfo,
     };
   }
 
-  private formatEmergencyMessage(data: EmergencyData): string {
+  formatEmergencyMessage(data) {
     const date = new Date(data.timestamp).toLocaleString();
     const locationText = data.location 
       ? `Location: ${data.location.coords.latitude.toFixed(6)}, ${data.location.coords.longitude.toFixed(6)}`
@@ -216,14 +168,14 @@ Device: ${data.deviceInfo.deviceName}
 Platform: ${data.deviceInfo.platform} ${data.deviceInfo.osVersion}
 
 ${data.photoUri ? '📷 Photo attached' : '📷 Photo not available'}
-${data.audioUri ? '🎤 Audio recording attached' : '🎤 Audio not available'}
+${data.videoUri ? '📹 Video recording attached' : '📹 Video not available'}
 
 If this is a real emergency, please call local emergency services immediately.
 
 Google Maps Link: ${data.location ? `https://maps.google.com/?q=${data.location.coords.latitude},${data.location.coords.longitude}` : 'Not available'}`;
   }
 
-  async sendEmailAlert(data: EmergencyData): Promise<boolean> {
+  async sendEmailAlert(data) {
     try {
       const isAvailable = await MailComposer.isAvailableAsync();
       if (!isAvailable) {
@@ -231,22 +183,19 @@ Google Maps Link: ${data.location ? `https://maps.google.com/?q=${data.location.
       }
 
       const message = this.formatEmergencyMessage(data);
-      const attachments: string[] = [];
+      const attachments = [];
       
-      // Add photo attachment if available
       if (data.photoUri) {
         attachments.push(data.photoUri);
       }
       
-      // Add audio attachment if available
-      if (data.audioUri) {
-        attachments.push(data.audioUri);
+      if (data.videoUri) {
+        attachments.push(data.videoUri);
       }
 
-      // Get emergency contacts (for now, using a default email)
       const recipientEmails = this.emergencyContacts.length > 0 
         ? this.emergencyContacts.map(contact => contact.email)
-        : ['emergency@example.com']; // Default fallback
+        : ['emergency@example.com'];
 
       await MailComposer.composeAsync({
         recipients: recipientEmails,
@@ -263,7 +212,7 @@ Google Maps Link: ${data.location ? `https://maps.google.com/?q=${data.location.
     }
   }
 
-  async sendSMSAlert(data: EmergencyData): Promise<boolean> {
+  async sendSMSAlert(data) {
     try {
       const isAvailable = await SMS.isAvailableAsync();
       if (!isAvailable) {
@@ -272,10 +221,9 @@ Google Maps Link: ${data.location ? `https://maps.google.com/?q=${data.location.
 
       const message = this.formatEmergencyMessage(data);
       
-      // Get emergency contacts (for now, using a default number)
       const phoneNumbers = this.emergencyContacts.length > 0 
         ? this.emergencyContacts.map(contact => contact.phone)
-        : ['+1234567890']; // Default fallback
+        : ['+1234567890'];
 
       await SMS.sendSMSAsync(phoneNumbers, message);
       return true;
@@ -285,7 +233,7 @@ Google Maps Link: ${data.location ? `https://maps.google.com/?q=${data.location.
     }
   }
 
-  async sendSMSAlertWithRetry(data: EmergencyData, maxRetries: number = 3): Promise<boolean> {
+  async sendSMSAlertWithRetry(data, maxRetries = 3) {
     let retryCount = 0;
     
     while (retryCount < maxRetries) {
@@ -301,7 +249,6 @@ Google Maps Link: ${data.location ? `https://maps.google.com/?q=${data.location.
       retryCount++;
       
       if (retryCount < maxRetries) {
-        // Wait before retrying (exponential backoff)
         await new Promise(resolve => setTimeout(resolve, Math.pow(2, retryCount) * 1000));
       }
     }
@@ -309,9 +256,8 @@ Google Maps Link: ${data.location ? `https://maps.google.com/?q=${data.location.
     return false;
   }
 
-  // Method to add emergency contacts
-  async addEmergencyContact(contact: Omit<EmergencyContact, 'id'>): Promise<void> {
-    const newContact: EmergencyContact = {
+  async addEmergencyContact(contact) {
+    const newContact = {
       ...contact,
       id: Date.now().toString(),
     };
@@ -320,8 +266,7 @@ Google Maps Link: ${data.location ? `https://maps.google.com/?q=${data.location.
     await this.saveEmergencyContacts();
   }
 
-  // Method to save contacts to storage
-  private async saveEmergencyContacts(): Promise<void> {
+  async saveEmergencyContacts() {
     try {
       await AsyncStorage.setItem('emergency_contacts', JSON.stringify(this.emergencyContacts));
     } catch (error) {
@@ -329,21 +274,18 @@ Google Maps Link: ${data.location ? `https://maps.google.com/?q=${data.location.
     }
   }
 
-  // Method to get all contacts
-  getEmergencyContacts(): EmergencyContact[] {
+  getEmergencyContacts() {
     return this.emergencyContacts;
   }
 
-  // Method to remove a contact
-  async removeEmergencyContact(contactId: string): Promise<void> {
+  async removeEmergencyContact(contactId) {
     this.emergencyContacts = this.emergencyContacts.filter(contact => contact.id !== contactId);
     await this.saveEmergencyContacts();
   }
 
-  // Add this method
-  async testEmergencySystem(): Promise<boolean> {
-    // Implement your test logic here (e.g., send a test SMS/email)
-    // For now, just simulate success
+  async testEmergencySystem() {
     return true;
   }
 }
+
+export default EmergencyService;

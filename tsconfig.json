@@ -17,5 +17,5 @@
     "app/_layout.jsx",
     "app/index.jsx",
     "nativewind-env.d.ts"
-  ]
+, "services/messagingServices.js", "services/locationService.js", "services/emergencyService.js", "services/cameraService.js", "services/audioService.js", "services/voiceService.js", "components/SOSButton.jsx"  ]
 }

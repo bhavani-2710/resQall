@@ -1,56 +1,32 @@
-import FontAwesome from "@expo/vector-icons/FontAwesome";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import { Tabs } from "expo-router";
-import { Colors } from "../../assets/Colors.js";
+import React from 'react';
+import { Tabs } from 'expo-router';
+import { FontAwesome5 } from '@expo/vector-icons';
 
-const TabLayout = () => {
+export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: Colors.PRIMARY,
-        tabBarInActiveTintColor: Colors.dark.text,
+        tabBarActiveTintColor: '#FF6347',
+        tabBarInactiveTintColor: 'gray',
         tabBarStyle: {
-          backgroundColor: Colors.SECONDARY,
-          paddingBottom: 20,
-          paddingTop: 5,
-          height: 70,
+          backgroundColor: '#fff',
         },
-        tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: "bold",
-        },
-      }}
-    >
+        headerShown: false,
+      }}>
       <Tabs.Screen
         name="home"
         options={{
-          title: "Home",
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="home" size={25} color={color} />
-          ),
+          title: 'Home',
+          tabBarIcon: ({ color }) => <FontAwesome5 size={28} name="home" color={color} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: "Profile",
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="person-sharp" size={25} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="settings"
-        options={{
-          title: "Settings",
-          tabBarIcon: ({ color }) => (
-            <FontAwesome name="gear" size={25} color={color} />
-          ),
+          title: 'Profile',
+          tabBarIcon: ({ color }) => <FontAwesome5 size={28} name="user-alt" color={color} />,
         }}
       />
     </Tabs>
   );
-};
-
-export default TabLayout;
+}

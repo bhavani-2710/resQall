@@ -1,20 +1,18 @@
-import Voice, { SpeechResultsEvent, SpeechErrorEvent } from '@react-native-voice/voice';
+// VoiceService.js (Converted from TS to JS)
 
-type VoiceCallback = (detected: boolean, transcript?: string, error?: string) => void;
+import Voice from '@react-native-voice/voice';
 
 class VoiceService {
-  private secretPhrase: string;
-  private callback: VoiceCallback | null = null;
-  private isListening: boolean = false;
-  private retryCount: number = 0;
-  private maxRetries: number = 3;
-
-  constructor(secretPhrase: string) {
+  constructor(secretPhrase) {
     this.secretPhrase = secretPhrase.toLowerCase();
+    this.callback = null;
+    this.isListening = false;
+    this.retryCount = 0;
+    this.maxRetries = 3;
     this.setupVoiceHandlers();
   }
 
-  private setupVoiceHandlers() {
+  setupVoiceHandlers() {
     Voice.onSpeechResults = this.onSpeechResults.bind(this);
     Voice.onSpeechError = this.onSpeechError.bind(this);
     Voice.onSpeechEnd = this.onSpeechEnd.bind(this);
@@ -22,7 +20,7 @@ class VoiceService {
     Voice.onSpeechPartialResults = this.onSpeechPartialResults.bind(this);
   }
 
-  async startListening(callback: VoiceCallback) {
+  async startListening(callback) {
     try {
       this.callback = callback;
       this.isListening = true;
@@ -43,11 +41,11 @@ class VoiceService {
     }
   }
 
-  private onSpeechStart() {
+  onSpeechStart() {
     console.log('Voice recognition started');
   }
 
-  private onSpeechPartialResults(e: SpeechResultsEvent) {
+  onSpeechPartialResults(e) {
     const partialTranscript = e.value?.join(' ').toLowerCase() || '';
     if (partialTranscript.includes(this.secretPhrase)) {
       this.callback?.(true, partialTranscript);
@@ -55,7 +53,7 @@ class VoiceService {
     }
   }
 
-  private onSpeechResults(e: SpeechResultsEvent) {
+  onSpeechResults(e) {
     const transcript = e.value?.join(' ').toLowerCase() || '';
     
     if (transcript.includes(this.secretPhrase)) {
@@ -66,7 +64,7 @@ class VoiceService {
     }
   }
 
-  private onSpeechError(e: SpeechErrorEvent) {
+  onSpeechError(e) {
     console.log('Voice error:', e.error);
     
     if (this.isListening && this.retryCount < this.maxRetries) {
@@ -81,9 +79,8 @@ class VoiceService {
     }
   }
 
-  private onSpeechEnd() {
+  onSpeechEnd() {
     if (this.isListening) {
-      // Restart listening automatically with a small delay
       setTimeout(() => {
         if (this.isListening) {
           Voice.start('en-US').catch(console.warn);
@@ -92,7 +89,7 @@ class VoiceService {
     }
   }
 
-  updateSecretPhrase(newPhrase: string) {
+  updateSecretPhrase(newPhrase) {
     this.secretPhrase = newPhrase.toLowerCase();
   }
 
