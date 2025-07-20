@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useRouter } from 'expo-router';
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -14,7 +14,6 @@ import {
   Vibration,
   View
 } from 'react-native';
-import { useTailwind } from 'tailwind-rn'; // For Tailwind styling
 import EmergencyService from '../../services/emergencyService.js';
 
 const { width, height } = Dimensions.get('window');
