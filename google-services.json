@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "539151099258",
+    "firebase_url": "https://resqall-231be-default-rtdb.firebaseio.com",
+    "project_id": "resqall-231be",
+    "storage_bucket": "resqall-231be.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:539151099258:android:e9106626b41611383e22c3",
+        "android_client_info": {
+          "package_name": "com.batl.resQall"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "539151099258-ppg2am9b548k595uotjecj7j12gnlirc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.batl.resQall",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "539151099258-s77pog5o32s5d7epbo673f0kge019gke.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCSCo9O9UseNQpTGWiGEByx4ZhS7B0pov0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "539151099258-oe36c07l960bqv9l1rp0kgt7ni7jqmvl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -9,13 +9,16 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.batl.resQall"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#000000"
-      }
+      },
+      "package": "com.batl.resQall",
+      "name" : "ResQall"
     },
     "web": {
       "bundler": "metro",
@@ -36,7 +39,12 @@
           "imageWidth": 200
         }
       ],
-      "expo-font"
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone for recordings."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
