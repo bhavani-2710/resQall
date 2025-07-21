@@ -19,7 +19,6 @@ import EmergencyService from '../../services/emergencyService.js';
 const { width, height } = Dimensions.get('window');
 
 export default function Emergency() {
-  const tailwind = useTailwind();
   const router = useRouter();
   const cameraRef = useRef(null);
   const [permission, requestPermission] = useCameraPermissions();

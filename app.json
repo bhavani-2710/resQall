@@ -17,6 +17,9 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#000000"
       },
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ],
       "package": "com.batl.resQall",
       "name" : "ResQall",
       "edgeToEdgeEnabled": true,
