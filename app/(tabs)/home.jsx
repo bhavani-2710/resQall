@@ -1,13 +1,12 @@
 import { FontAwesome5 } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function HomeScreen() {
   const router = useRouter();
 
   const handleSOS = () => {
-    router.push('/(emergency)/emergency');
+    router.push('/emergency');
   };
 
   return (

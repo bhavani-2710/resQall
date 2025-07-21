@@ -17,11 +17,9 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#000000"
       },
-      "permissions": [
-        "android.permission.RECORD_AUDIO"
-      ],
+      "permissions": ["RECORD_AUDIO", "READ_CONTACTS", "CAMERA"],
       "package": "com.batl.resQall",
-      "name" : "ResQall",
+      "name": "ResQall",
       "edgeToEdgeEnabled": true,
       "googleServicesFile": "./google-services.json"
     },
@@ -48,6 +46,12 @@
         "expo-audio",
         {
           "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone for recordings."
+        }
+      ],
+      [
+        "expo-contacts",
+        {
+          "contactsPermission": "Allow $(PRODUCT_NAME) to access your contacts."
         }
       ]
     ],
