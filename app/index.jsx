@@ -37,7 +37,7 @@ export default function Index() {
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => router.push("/(emergency)/emergency")}
+              onPress={() => router.push("/emergency")}
               className="p-2 my-2 bg-[#000000] border border-[#CF0F47] rounded-lg max-w-fit"
             >
               <Text className="text-lg font-semibold text-[#CF0F47] text-center">
