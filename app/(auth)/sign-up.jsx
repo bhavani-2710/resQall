@@ -8,12 +8,11 @@ import {
   FlatList,
   Image,
   Modal,
-  Pressable,
   ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import logo from "../../assets/images/logo.png";
@@ -30,11 +29,9 @@ const SignUp = () => {
     name: "",
     email: "",
     password: "",
-    contacts: [{ name: "", phone: "" }], // Start with 1 contact
+    contacts: [{ name: "", phone: "", email: "" }], // Start with 1 contact
     emergencyCode: "",
   });
-
-  const [uid, setUid] = useState(null);
 
   // Modal state for contact picker
   const [contactPermissionStatus, setContactPermissionStatus] = useState(false);
@@ -50,7 +47,7 @@ const SignUp = () => {
       setUserData({ ...userData, ...values });
       setCurrentStep(2);
     } catch (err) {
-      alert(err.message);
+      Alert.alert(err.message);
     }
   };
 
@@ -75,6 +72,7 @@ const SignUp = () => {
     if (contactPermissionStatus) {
       const { data } = await Contacts.getContactsAsync({
         fields: [Contacts.Fields.PhoneNumbers, Contacts.Fields.Emails],
+        sort: "firstName"
       });
 
       if (data.length > 0) {
@@ -84,7 +82,7 @@ const SignUp = () => {
         setContactSearch("");
         setContactsModalVisible(true);
       } else {
-        alert("No contacts with phone numbers found.");
+        Alert.alert("No contacts with phone numbers found.");
       }
     }
   };
@@ -94,7 +92,7 @@ const SignUp = () => {
       const { status } = await Contacts.requestPermissionsAsync();
       console.log(status);
       if (status !== "granted") {
-        alert("Permission denied to access contacts.");
+        Alert.alert("Permission denied to access contacts.");
         return;
       }
       setContactPermissionStatus(true);
@@ -138,7 +136,7 @@ const SignUp = () => {
                       onBlur={handleBlur("name")}
                       value={values.name}
                       placeholder="Name"
-                      placeholderTextColor="white"
+                      placeholderTextColor="#9ca3af"
                     />
                     {touched.name && errors.name && (
                       <Text className="text-red-500 text-xs mb-2">
@@ -153,7 +151,7 @@ const SignUp = () => {
                       onBlur={handleBlur("email")}
                       value={values.email}
                       placeholder="Email"
-                      placeholderTextColor="white"
+                      placeholderTextColor="#9ca3af"
                     />
                     {touched.email && errors.email && (
                       <Text className="text-red-500 text-xs mb-2">
@@ -168,7 +166,7 @@ const SignUp = () => {
                       onBlur={handleBlur("password")}
                       value={values.password}
                       placeholder="Password"
-                      placeholderTextColor="white"
+                      placeholderTextColor="#9ca3af"
                     />
                     {touched.password && errors.password && (
                       <Text className="text-red-500 text-xs mb-2">
@@ -221,7 +219,7 @@ const SignUp = () => {
                     <TextInput
                       className="mb-2 border border-white text-white rounded-lg px-3 py-2"
                       placeholder="Name"
-                      placeholderTextColor="white"
+                      placeholderTextColor="#9ca3af"
                       value={contact.name}
                       onChangeText={(text) => {
                         const updated = [...userData.contacts];
@@ -233,7 +231,7 @@ const SignUp = () => {
                     <TextInput
                       className="mb-2 border border-white text-white rounded-lg px-3 py-2"
                       placeholder="Phone"
-                      placeholderTextColor="white"
+                      placeholderTextColor="#9ca3af"
                       value={contact.phone}
                       onChangeText={(text) => {
                         const updated = [...userData.contacts];
@@ -245,7 +243,7 @@ const SignUp = () => {
                     <TextInput
                       className="border border-white text-white rounded-lg px-3 py-2"
                       placeholder="Email"
-                      placeholderTextColor="white"
+                      placeholderTextColor="#9ca3af"
                       value={contact.email}
                       onChangeText={(text) => {
                         const updated = [...userData.contacts];
@@ -256,9 +254,9 @@ const SignUp = () => {
 
                     <TouchableOpacity
                       onPress={() => openContactsPicker(index)}
-                      className="mt-3 bg-blue-600 px-3 py-2 rounded-lg"
+                      className="mt-3 bg-white px-3 py-2 rounded-lg"
                     >
-                      <Text className="text-white text-center">
+                      <Text className="text-black text-center">
                         Pick from Contacts
                       </Text>
                     </TouchableOpacity>
@@ -273,7 +271,7 @@ const SignUp = () => {
                         ...userData,
                         contacts: [
                           ...userData.contacts,
-                          { name: "", phone: "" },
+                          { name: "", phone: "", email: "" },
                         ],
                       });
                     }}
@@ -281,7 +279,7 @@ const SignUp = () => {
                   >
                     <View className="flex flex-row justify-center gap-2">
                       <AntDesign name="pluscircle" size={16} color="white" />
-                      <Text className="text-white text-center font-light text-sm">
+                      <Text className="text-white text-center font-medium text-sm">
                         Add Another Contact
                       </Text>
                     </View>
@@ -294,7 +292,8 @@ const SignUp = () => {
                     const firstContact = userData.contacts[0];
                     if (
                       firstContact.name.trim() === "" ||
-                      firstContact.phone.trim() === ""
+                      firstContact.phone.trim() === "" ||
+                      firstContact.email.trim() === ""
                     ) {
                       Alert.alert(
                         "At least one complete emergency contact is required."
@@ -322,7 +321,7 @@ const SignUp = () => {
                 <TextInput
                   className="mb-4 border border-white text-white rounded-lg px-3 py-2"
                   placeholder="Your Secret Code"
-                  placeholderTextColor="white"
+                  placeholderTextColor="#9ca3af"
                   value={userData.emergencyCode}
                   onChangeText={(text) =>
                     setUserData({ ...userData, emergencyCode: text })
@@ -377,13 +376,13 @@ const SignUp = () => {
               data={filteredContacts}
               keyExtractor={(item) => item.id}
               renderItem={({ item }) => (
-                <Pressable
-                  className="p-4 border-b border-gray-300"
+                <TouchableOpacity
+                  className="px-4 py-1 border-b border-gray-300"
                   onPress={() => {
                     const phone = item.phoneNumbers[0]?.number || "";
                     const name = item.name || "";
-                    const email = item.emails[0]?.email || "";
-
+                    const email = item.emails ? item.emails[0]?.email || "" : "";
+console.log({name, item, phone, email})
                     const updated = [...userData.contacts];
                     updated[targetIndex] = { name, phone, email };
                     setUserData({ ...userData, contacts: updated });
@@ -395,7 +394,7 @@ const SignUp = () => {
                   <Text className="text-gray-500">
                     {item.phoneNumbers[0]?.number}
                   </Text>
-                </Pressable>
+                </TouchableOpacity>
               )}
             />
 
