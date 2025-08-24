@@ -103,7 +103,7 @@ const SignUp = () => {
   );
 
   return (
-    <SafeAreaView className="bg-black flex-1">
+    <SafeAreaView className="bg-[#28282B] flex-1">
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
@@ -261,7 +261,7 @@ const SignUp = () => {
                         onPress={() => openContactsPicker(index)}
                         className="mt-3 bg-white px-3 py-2 rounded-lg"
                       >
-                        <Text className="text-black text-center">
+                        <Text className="text-[#28282B] text-center">
                           Pick from Contacts
                         </Text>
                       </TouchableOpacity>
@@ -300,9 +300,7 @@ const SignUp = () => {
                         firstContact.phone.trim() === "" ||
                         firstContact.email.trim() === ""
                       ) {
-                        Alert.alert(
-                          "Atleast 1 emergency contact is required."
-                        );
+                        Alert.alert("Atleast 1 emergency contact is required.");
                       } else {
                         setCurrentStep(3);
                       }
@@ -414,10 +412,19 @@ const SignUp = () => {
                       setContactsModalVisible(false);
                     }}
                   >
-                    <Text className="text-lg">{item.name}</Text>
-                    <Text className="text-gray-500">
-                      {item.phoneNumbers[0]?.number}
+                    <Text className="text-lg font-normal text-[#28282B]">
+                      {item.name}
                     </Text>
+                    {item.phoneNumbers?.length > 0 && (
+                      <Text className="text-gray-500">
+                        {item.phoneNumbers[0].number}
+                      </Text>
+                    )}
+                    {item.emails?.length > 0 && (
+                      <Text className="text-gray-400">
+                        {item.emails[0].email}
+                      </Text>
+                    )}
                   </TouchableOpacity>
                 )}
               />

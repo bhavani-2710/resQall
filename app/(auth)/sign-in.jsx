@@ -1,6 +1,7 @@
 import { useRouter } from "expo-router";
 import { Formik } from "formik";
 import {
+  Alert,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -33,7 +34,7 @@ const SignIn = () => {
   };
 
   return (
-    <SafeAreaView className="bg-black flex-1">
+    <SafeAreaView className="bg-[#28282B] flex-1">
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}

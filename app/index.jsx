@@ -13,7 +13,7 @@ import logo from '../assets/images/logo.png';
 export default function Index() {
   const router = useRouter();
   return (
-    <SafeAreaView className={`bg-[#000000]`}>
+    <SafeAreaView className={`bg-[#28282B]`}>
       <ScrollView contentContainerStyle={{ height: "100%" }}>
         <View className="m-2 flex justify-center items-center">
           <View className="mt-36 mb-20">
@@ -22,7 +22,7 @@ export default function Index() {
           <View className="w-3/4">
             <TouchableOpacity
               onPress={() => router.push("/sign-up")}
-              className="p-2 my-2 bg-[#CF0F47] text-black rounded-lg"
+              className="p-2 my-2 bg-[#CF0F47] text-[#28282B] rounded-lg"
             >
               <Text className="text-lg font-semibold text-center">Sign Up</Text>
             </TouchableOpacity>

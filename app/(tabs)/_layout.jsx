@@ -1,15 +1,19 @@
-import React from 'react';
-import { Tabs } from 'expo-router';
 import { FontAwesome5 } from '@expo/vector-icons';
+import { Tabs } from 'expo-router';
 
 export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#FF6347',
+        tabBarActiveTintColor: '#CF0F47',
         tabBarInactiveTintColor: 'gray',
         tabBarStyle: {
-          backgroundColor: '#fff',
+          backgroundColor: '#28282B',
+          height: 80,
+          paddingTop: 7
+        },
+        tabBarLabelStyle:{
+          fontSize: 11,
         },
         headerShown: false,
       }}>

@@ -61,7 +61,6 @@ export const AuthProvider = ({ children }) => {
     return () => unsubscribe();
   }, []);
 
-  // 🔹 Signup
   const signup = async (userData) => {
     setAuthLoading(true);
     try {
@@ -84,6 +83,7 @@ export const AuthProvider = ({ children }) => {
       // Firestore profile
       const profileData = {
         uid: currentUser.uid,
+        name: currentUser.displayName,
         email: currentUser.email,
         emailVerified: currentUser.emailVerified,
         createdAt: serverTimestamp(),
@@ -110,7 +110,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // 🔹 Login
   const login = async (email, password) => {
     try {
       const userCredential = await signInWithEmailAndPassword(
@@ -224,6 +223,30 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const updateEmergencyDetails = async (uid, contacts, emergencyCode) => {
+    try {
+      if (!uid) {
+        Alert.alert("You must be logged in to save data.");
+        return;
+      }
+       console.log("Saving for UID:", uid);
+    console.log("Contacts:", contacts);
+    console.log("Emergency Code:", emergencyCode);
+
+
+      await setDoc(
+        doc(db, "users", uid),
+        { contacts, emergencyCode, updatedAt: serverTimestamp() },
+        { merge: true }
+      );
+
+      Alert.alert("Success", "Emergency info updated successfully!");
+    } catch (error) {
+      console.error("Error saving data:", error);
+      Alert.alert("Error", "Something went wrong while saving.");
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -238,6 +261,7 @@ export const AuthProvider = ({ children }) => {
         changeName,
         changePassword,
         deleteAccount,
+        updateEmergencyDetails
       }}
     >
       {children}
