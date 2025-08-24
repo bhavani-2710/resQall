@@ -1,6 +1,6 @@
-import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
-
+import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBACLke2a21OxZLymJfh16zMD7ShjGPQ_U",
@@ -10,11 +10,13 @@ const firebaseConfig = {
   storageBucket: "resqall-231be.firebasestorage.app",
   messagingSenderId: "539151099258",
   appId: "1:539151099258:web:b29dc95d73497c8a3e22c3",
-  measurementId: "G-8KN1K137J8"
+  measurementId: "G-8KN1K137J8",
 };
 
 const app = initializeApp(firebaseConfig);
 
+const auth = getAuth(app);
 const db = getFirestore(app);
 
-export { app, db };
+export { app, auth, db };
+

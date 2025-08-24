@@ -301,7 +301,7 @@ const SignUp = () => {
                         firstContact.email.trim() === ""
                       ) {
                         Alert.alert(
-                          "At least one complete emergency contact is required."
+                          "Atleast 1 emergency contact is required."
                         );
                       } else {
                         setCurrentStep(3);
@@ -353,6 +353,24 @@ const SignUp = () => {
                   <Text className="text-white text-center">Back</Text>
                 </TouchableOpacity>
               )}
+            </View>
+            <View>
+              <Text className="text-center text-lg font-semibold my-4 text-white">
+                <View className="border-b-2 border-[#CF0F47] p-2 mb-1 w-24" />
+                {"   "}or{"  "}{" "}
+                <View className="border-b-2 border-[#CF0F47] p-2 mb-1 w-24" />
+              </Text>
+              <TouchableOpacity
+                className="flex flex-row items-center justify-center"
+                onPress={() => router.push("/sign-in")}
+              >
+                <Text className="text-white font-semibold">
+                  Already a user?{" "}
+                </Text>
+                <Text className="text-base font-semibold underline text-[#CF0F47]">
+                  Sign In
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
 
