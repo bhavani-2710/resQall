@@ -1,21 +1,26 @@
-// context/AuthContext.js
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import {
   createUserWithEmailAndPassword,
-  onAuthStateChanged,
+  deleteUser,
   sendEmailVerification,
+  sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signOut,
   updateProfile,
 } from "firebase/auth";
-import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
+import {
+  deleteDoc,
+  doc,
+  getDoc,
+  serverTimestamp,
+  setDoc,
+} from "firebase/firestore";
 import { createContext, useContext, useEffect, useState } from "react";
 import { Alert } from "react-native";
 import { auth, db } from "../config/firebaseConfig";
 
 const AuthContext = createContext();
-
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
@@ -23,79 +28,66 @@ export const AuthProvider = ({ children }) => {
   const [authLoading, setAuthLoading] = useState(true);
   const router = useRouter();
 
-  // 🔹 Merge Firebase Auth + Firestore profile
-  const loadUserProfile = async (firebaseUser) => {
-    if (!firebaseUser) return null;
-
+  // 🔹 Load Firestore profile using UID
+  const loadUserProfile = async (uid) => {
+    if (!uid) return null;
     try {
-      const userRef = doc(db, "users", firebaseUser.uid);
-      const userSnap = await getDoc(userRef);
-      const profileData = userSnap.exists() ? userSnap.data() : {};
-
-      return {
-        uid: firebaseUser.uid,
-        email: firebaseUser.email,
-        ...profileData,
-      };
+      const userSnap = await getDoc(doc(db, "users", uid));
+      if (userSnap.exists()) {
+        const profile = userSnap.data();
+        setUser(profile);
+        return profile;
+      }
+      return null;
     } catch (err) {
-      console.error("❌ Error fetching Firestore profile:", err);
-      return {
-        uid: firebaseUser.uid,
-        email: firebaseUser.email,
-      };
+      console.error("Error fetching profile:", err);
+      return null;
     }
   };
 
+  // 🔹 Initialize user on app start
   useEffect(() => {
-    if (!auth) return; // prevent running early
-
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        setUser(firebaseUser);
-      } else {
-        setUser(null);
+    const init = async () => {
+      setAuthLoading(true);
+      try {
+        const storedUID = await AsyncStorage.getItem("userUID");
+        if (storedUID) {
+          await loadUserProfile(storedUID);
+        }
+      } catch (err) {
+        console.error("Error initializing user:", err);
+      } finally {
+        setAuthLoading(false);
       }
-      setAuthLoading(false);
-    });
+    };
 
-    return () => unsubscribe();
+    init();
   }, []);
 
-  const signup = async (userData) => {
+  const signup = async ({ email, password, name, ...extraData }) => {
     setAuthLoading(true);
     try {
-      const { email, password, name, ...extraData } = userData;
-
-      // Create Firebase Auth user
       const userCred = await createUserWithEmailAndPassword(
         auth,
         email,
         password
       );
-
       const currentUser = userCred.user;
       await updateProfile(currentUser, { displayName: name });
-
       await sendEmailVerification(currentUser);
 
-      const userRef = doc(db, "users", userCred.user.uid);
-
-      // Firestore profile
       const profileData = {
         uid: currentUser.uid,
-        name: currentUser.displayName,
-        email: currentUser.email,
+        name,
+        email,
         emailVerified: currentUser.emailVerified,
         createdAt: serverTimestamp(),
         ...extraData,
       };
 
-      await setDoc(userRef, profileData);
-
-      const userSnap = await getDoc(doc(db, "users", currentUser.uid));
-      setUser(userSnap.data());
-
+      await setDoc(doc(db, "users", currentUser.uid), profileData);
       await AsyncStorage.setItem("userUID", currentUser.uid);
+      setUser(profileData);
 
       Alert.alert(
         "Verify Your Email",
@@ -111,6 +103,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const login = async (email, password) => {
+    setAuthLoading(true);
     try {
       const userCredential = await signInWithEmailAndPassword(
         auth,
@@ -125,63 +118,71 @@ export const AuthProvider = ({ children }) => {
           "Email Not Verified",
           "Please verify your email before logging in."
         );
-        await signOut(auth); // 👈 force sign out
+        await signOut(auth);
+        setAuthLoading(false);
         return;
-      } else if (currentUser.emailVerified) {
-        await setDoc(
-          doc(db, "users", currentUser.uid),
-          { emailVerified: true },
-          { merge: true } // 🔥 merge so you don't overwrite existing data
-        );
+      }
 
-        // Fetch from firestore
-        const userSnap = await getDoc(doc(db, "users", currentUser.uid));
-        const user = userSnap.data();
-        setUser(user);
-        await AsyncStorage.setItem("userUID", userCredential.user.uid);
-        router.push("/home");
-      }
-    } catch (error) {
-      console.log("❌ Sign-in error:", error);
-      if (error.code === "auth/invalid-credential") {
-        Alert.alert(
-          "Sign In Failed!",
-          "Incorrect Credentials. Please try again",
-          [{ text: "OK" }]
-        );
-      } else {
-        Alert.alert(
-          "Error Signing In!",
-          "An unexpected error occurred. Please try again later.",
-          [{ text: "OK" }]
-        );
-      }
+      const profileData = await loadUserProfile(currentUser.uid);
+      await AsyncStorage.setItem("userUID", currentUser.uid);
+      setUser(profileData);
+      router.push("/home");
+    } catch (err) {
+      console.error("❌ Sign-in error:", err);
+      Alert.alert(
+        "Error Signing In!",
+        "Check your credentials or try again later."
+      );
+    } finally {
+      setAuthLoading(false);
     }
   };
 
   const logout = async () => {
     await signOut(auth);
     setUser(null);
-    AsyncStorage.removeItem("userUID");
+    await AsyncStorage.removeItem("userUID");
     router.replace("/");
   };
 
-  const changeName = async (newName) => {
-    if (!user) {
-      console.error("User is not available");
-      return;
-    }
+  // 🔹 Reload user profile manually
+  const reloadUser = async () => {
+    if (!user?.uid) return;
+    await loadUserProfile(user.uid);
+  };
+
+  // 🔹 Emergency code/contacts update with auto-refresh
+  const updateEmergencyCode = async (uid, emergencyCode) => {
+    if (!uid) return;
     try {
       await setDoc(
-        doc(db, "users", user.uid),
-        { name: newName },
+        doc(db, "users", uid),
+        { emergencyCode, updatedAt: serverTimestamp() },
         { merge: true }
       );
-      const userSnap = await getDoc(doc(db, "users", user.uid));
-      setUser(userSnap.data());
-      return;
-    } catch (error) {
-      console.error("❌ Error updating name:", error);
+      await reloadUser();
+      router.back();
+      Alert.alert("Success", "Emergency code updated!");
+    } catch (err) {
+      console.error(err);
+      Alert.alert("Error", "Failed to update emergency code.");
+    }
+  };
+
+  const updateEmergencyContacts = async (uid, contacts) => {
+    if (!uid) return;
+    try {
+      await setDoc(
+        doc(db, "users", uid),
+        { contacts, updatedAt: serverTimestamp() },
+        { merge: true }
+      );
+      await reloadUser();
+      router.back();
+      Alert.alert("Success", "Emergency contacts updated!");
+    } catch (err) {
+      console.error(err);
+      Alert.alert("Error", "Failed to update contacts.");
     }
   };
 
@@ -223,45 +224,21 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const updateEmergencyDetails = async (uid, contacts, emergencyCode) => {
-    try {
-      if (!uid) {
-        Alert.alert("You must be logged in to save data.");
-        return;
-      }
-       console.log("Saving for UID:", uid);
-    console.log("Contacts:", contacts);
-    console.log("Emergency Code:", emergencyCode);
-
-
-      await setDoc(
-        doc(db, "users", uid),
-        { contacts, emergencyCode, updatedAt: serverTimestamp() },
-        { merge: true }
-      );
-
-      Alert.alert("Success", "Emergency info updated successfully!");
-    } catch (error) {
-      console.error("Error saving data:", error);
-      Alert.alert("Error", "Something went wrong while saving.");
-    }
-  };
-
   return (
     <AuthContext.Provider
       value={{
         user,
-        setUser,
-        isLoggedIn: !!user,
         authLoading,
-        setAuthLoading,
-        login,
+        isLoggedIn: !!user,
         signup,
+        login,
         logout,
-        changeName,
+        reloadUser,
+        updateEmergencyCode,
+        updateEmergencyContacts,
         changePassword,
         deleteAccount,
-        updateEmergencyDetails
+        loadUserProfile,
       }}
     >
       {children}

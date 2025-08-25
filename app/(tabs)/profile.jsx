@@ -1,334 +1,161 @@
-import { AntDesign } from "@expo/vector-icons";
-import * as Contacts from "expo-contacts";
-import { useEffect, useState } from "react";
+import { AntDesign, FontAwesome, Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import {
   Alert,
-  FlatList,
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
   SafeAreaView,
-  ScrollView,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
-import uuid from "react-native-uuid";
 import { useAuth } from "../../context/AuthContext";
 
 export default function ProfileScreen() {
-  const { user, updateEmergencyDetails } = useAuth();
-  const [userData, setUserData] = useState([]);
-  const [emergencyCode, setEmergencyCode] = useState("");
+  const router = useRouter();
+  const {
+    user,
+    updateEmergencyDetails,
+    handleDeleteAccount,
+    logout,
+    changePassword,
+  } = useAuth();
 
-  // Modal state for contact picker
-  const [contactPermissionStatus, setContactPermissionStatus] = useState(false);
-  const [contactsModalVisible, setContactsModalVisible] = useState(false);
-  const [availableContacts, setAvailableContacts] = useState([]);
-  const [contactSearch, setContactSearch] = useState("");
-  const [targetIndex, setTargetIndex] = useState(null);
-
-  // Open Contact Picker (expo-contacts)
-  const openContactsPicker = async (index) => {
-    if (contactPermissionStatus) {
-      const { data } = await Contacts.getContactsAsync({
-        fields: [Contacts.Fields.PhoneNumbers, Contacts.Fields.Emails],
-        sort: "firstName",
-      });
-
-      if (data.length > 0) {
-        const filtered = data.filter((c) => c.phoneNumbers?.length > 0);
-        setAvailableContacts(filtered);
-        setTargetIndex(index);
-        setContactSearch("");
-        setContactsModalVisible(true);
-      } else {
-        Alert.alert("No contacts with phone numbers found.");
+  const handleDeleteAccountConfirmation = async () => {
+    Alert.alert(
+      "Permanently Delete Your Account",
+      "Are you sure you want to delete your account?",
+      [
+        { text: "No", style: "cancel", isPreferred: false },
+        {
+          text: "Yes",
+          style: "default",
+          isPreferred: true,
+          onPress: handleDeleteAccount,
+        },
+      ],
+      {
+        cancelable: true,
       }
-    }
+    );
   };
 
-  useEffect(() => {
-    (async () => {
-      const { status } = await Contacts.requestPermissionsAsync();
-      if (status !== "granted") {
-        Alert.alert("Permission denied to access contacts.");
-        return;
-      }
-      setContactPermissionStatus(true);
-    })();
-  }, []);
-
-  // Filter contacts based on search
-  const filteredContacts = availableContacts.filter((item) =>
-    item.name?.toLowerCase().includes(contactSearch.toLowerCase())
-  );
-
-  useEffect(() => {
-    // Load contacts from DB/user
-    if (user?.contacts?.length > 0) {
-      setUserData(
-        user.contacts.map((c, idx) => ({
-          ...c,
-          id: uuid.v4(),
-        }))
-      );
-    } else {
-      setUserData([{ id: uuid.v4(), name: "", phone: "", email: "" }]);
-    }
-  }, [user]);
-
-  const handleDeleteContact = (id) => {
-    if (userData.length === 1) {
-      Alert.alert(
-        "At least 1 contact required",
-        "You must have at least one contact."
-      );
-      return;
-    }
-    const updated = userData.filter((c) => c.id !== id);
-    setUserData(updated);
+  const handleChangePassword = async () => {
+    await changePassword();
+    Alert.alert(
+      "Password Reset",
+      "A Link has been sent to your registered email for resetting password!"
+    );
   };
-
-  const handleAddContact = () => {
-    if (userData.length >= 5) {
-      Alert.alert("Limit reached", "You can only add up to 5 contacts.");
-      return;
-    }
-    setUserData([
-      ...userData,
-      { id: Date.now().toString(), name: "", phone: "", email: "" },
-    ]);
-  };
-
-  const handleProceed = () => {
-    const firstContact = userData[0];
-    if (!firstContact.name || !firstContact.phone || !firstContact.email) {
-      Alert.alert("At least 1 complete emergency contact is required.");
-      return;
-    }
-
-    if (!emergencyCode.trim()) {
-      Alert.alert("Emergency code is required.");
-      return;
-    }
-    // Save both contacts + code
-    updateEmergencyDetails(user.uid, userData, emergencyCode.trim());
-  };
-
-  useEffect(() => {
-    if (user?.emergencyCode) {
-      setEmergencyCode(user.emergencyCode);
-    } else {
-      setEmergencyCode("Help me!"); // default
-    }
-  }, [user]);
 
   return (
-    <SafeAreaView className="bg-[#FFDEDE] flex-1 px-5 pt-12">
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={{ flex: 1 }}
+    <SafeAreaView className="bg-[#FFDEDE] pt-12">
+      {/* Header */}
+      <Text className="text-3xl font-extrabold text-[#28282B] m-auto underline underline-offset-8 mt-6">
+        USER PROFILE
+      </Text>
+
+      <View
+        style={{
+          height: "100%",
+          backgroundColor: "#FFDEDE",
+        }}
+        className="flex gap-2"
       >
-        <ScrollView
-          contentContainerStyle={{ paddingBottom: 50, flexGrow: 1 }}
-          keyboardShouldPersistTaps="handled"
-        >
-          {/* Header */}
-          <Text className="text-3xl font-extrabold text-[#28282B] m-auto underline underline-offset-8 mb-6">
-            User Profile
-          </Text>
-
-          <View className="space-y-2 mb-6">
-            <Text className="text-base font-medium text-[#28282B] opacity-80">
-              Name: {user?.name || "Guest"}
-            </Text>
-            <Text
-              numberOfLines={1} // ✅ truncate if too long
-              ellipsizeMode="tail" // ✅ adds "..."
-              className="text-base font-medium text-[#28282B] opacity-80 mt-1"
-            >
-              Email: {user?.email || "No Email"}
-            </Text>
-          </View>
-
-          <Text className="text-base font-bold text-[#CF0F47] mb-2">
-            Emergency Code
-          </Text>
-          <TextInput
-            className="border border-[#28282B] text-[#28282B] rounded-lg px-3 py-2 mb-6 bg-white"
-            placeholder="Enter your emergency code"
-            placeholderTextColor="#797979"
-            value={emergencyCode}
-            onChangeText={setEmergencyCode}
+        {/* USER DETAILS */}
+        <View className="m-4 mb-1 p-5 flex flex-row items-center justify-around gap-1">
+          <Ionicons
+            className="m-3 p-3 border border-white bg-[#28282B] rounded-full"
+            name="person"
+            size={32}
+            color="white"
           />
 
-          {/* Form Section */}
-          <Text className="text-base font-bold text-[#343434] mb-3">
-            Add/Update Emergency Contacts
-          </Text>
-
-          {userData.map((contact, index) => (
-            <View
-              key={contact.id}
-              className="mb-6 border border-[#28282B] rounded-xl p-4 bg-white"
-            >
-              <View className="flex flex-row justify-between items-center mb-2">
-                <Text className="text-[#28282B] font-semibold">
-                  Contact-{index + 1}
-                </Text>
-                <TouchableOpacity
-                  onPress={() => handleDeleteContact(contact.id)}
-                >
-                  <Text className="text-red-500">Remove</Text>
-                </TouchableOpacity>
-              </View>
-
-              <TextInput
-                className="mb-2 border border-[#28282B] text-[#28282B] rounded-lg px-3 py-2"
-                placeholder="Name"
-                placeholderTextColor="#797979"
-                value={contact.name}
-                onChangeText={(text) => {
-                  const updated = [...userData];
-                  updated[index].name = text;
-                  setUserData(updated);
-                }}
-              />
-              <TextInput
-                className="mb-2 border border-[#28282B] text-[#28282B] rounded-lg px-3 py-2"
-                placeholder="Phone"
-                placeholderTextColor="#797979"
-                value={contact.phone}
-                onChangeText={(text) => {
-                  const updated = [...userData];
-                  updated[index].phone = text;
-                  setUserData(updated);
-                }}
-              />
-              <TextInput
-                className="border border-[#28282B] text-[#28282B] rounded-lg px-3 py-2"
-                placeholder="Email"
-                placeholderTextColor="#797979"
-                value={contact.email}
-                onChangeText={(text) => {
-                  const updated = [...userData];
-                  updated[index].email = text;
-                  setUserData(updated);
-                }}
-              />
-
-              <TouchableOpacity
-                onPress={() => openContactsPicker(index)}
-                className="mt-3 bg-[#343434] px-3 py-2 rounded-lg"
-              >
-                <Text className="text-white text-center">
-                  Pick from Contacts
-                </Text>
-              </TouchableOpacity>
-            </View>
-          ))}
-
-          {/* Add More Contacts */}
-          {userData.length < 5 && (
-            <TouchableOpacity
-              onPress={handleAddContact}
-              className="p-3 bg-[#CF0F47] rounded-lg mb-4"
-            >
-              <View className="flex flex-row justify-center gap-2">
-                <AntDesign name="pluscircle" size={16} color="white" />
-                <Text className="text-white text-center font-medium text-sm">
-                  Add Another Contact
-                </Text>
-              </View>
-            </TouchableOpacity>
-          )}
-
-          {/* Proceed Button */}
-          <TouchableOpacity
-            onPress={handleProceed}
-            className="p-3 bg-[#CF0F47] rounded-lg"
-          >
-            <Text className="text-xl font-semibold text-center text-white">
-              Save Changes
+          <View>
+            <Text className="text-xl font-medium max-w-52 text-wrap text-[#28282B]">
+              {user?.name}
             </Text>
-          </TouchableOpacity>
+            <Text className="text-base font-normal max-w-60 text-wrap text-[#28282B]">
+              {user?.email}
+            </Text>
+          </View>
+        </View>
 
-          {/* Modal: Contact Picker */}
-          <Modal
-            visible={contactsModalVisible}
-            animationType="slide"
-            onRequestClose={() => setContactsModalVisible(false)}
+        {/* BORDER LINE*/}
+        <View className="flex items-center">
+          <View className="w-11/12 -mt-5 border-b-2 border-[#28282B]" />
+        </View>
+
+        {/* OPTIONS */}
+        <View
+          contentContainerStyle={{ display: "flex" }}
+          className="bg-white m-5 rounded-lg border border-[#28282B]"
+        >
+          <TouchableOpacity
+            onPress={() => router.push("/(settings)/contacts")}
+            className="m-2 p-3 mb-0 flex flex-row gap-4 items-center border-b border-[#CF0F47]"
           >
-            <SafeAreaView className="flex-1 bg-white">
-              <Text className="text-xl font-bold text-center my-4">
-                Select a Contact
-              </Text>
+            <AntDesign name="contacts" size={28} color="black" />
+            <Text className="text-base">Edit Contacts</Text>
+            <AntDesign
+              className="ml-auto"
+              name="right"
+              size={24}
+              color="black"
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => router.push("/(settings)/emergency-code")}
+            className="m-2 p-3 mb-0 flex flex-row gap-4 items-center border-b border-[#CF0F47]"
+          >
+            <AntDesign name="edit" size={28} color="black" />
+            <Text className="text-base">Modify Emergency Code</Text>
+            <AntDesign
+              className="ml-auto"
+              name="right"
+              size={24}
+              color="black"
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={handleChangePassword}
+            className="m-2 p-3 flex flex-row gap-4 items-center border-b border-[#CF0F47]"
+          >
+            <Ionicons name="lock-open" size={28} color="black" />
+            <Text className="text-base">Change Password</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={logout}
+            className="-mt-2 m-2 p-3 flex flex-row gap-4 items-center"
+          >
+            <FontAwesome name="sign-out" size={28} color="#C41E3A" />
+            <Text className="text-[#C41E3A]">Sign Out</Text>
+          </TouchableOpacity>
+        </View>
 
-              {/* Search Bar */}
-              <TextInput
-                className="mx-4 mb-4 border border-gray-400 rounded-lg px-3 py-2"
-                placeholder="Search Contacts"
-                placeholderTextColor="#9ca3af"
-                value={contactSearch}
-                onChangeText={setContactSearch}
-              />
-
-              {/* Contact List */}
-              <FlatList
-                data={filteredContacts}
-                keyExtractor={(item) => item.id}
-                renderItem={({ item }) => (
-                  <TouchableOpacity
-                    className="px-4 py-3 border-b border-gray-300"
-                    onPress={() => {
-                      const phone = item.phoneNumbers?.[0]?.number || "";
-                      const name = item.name || "";
-                      const email = item.emails?.[0]?.email || "";
-
-                      // Copy current contacts
-                      const updated = [...userData];
-
-                      // Keep ID intact while replacing data
-                      updated[targetIndex] = {
-                        ...updated[targetIndex],
-                        name,
-                        phone,
-                        email,
-                      };
-
-                      setUserData(updated);
-                      setContactsModalVisible(false);
-                    }}
-                  >
-                    <Text className="text-lg font-normal text-[#28282B]">
-                      {item.name}
-                    </Text>
-                    {item.phoneNumbers?.length > 0 && (
-                      <Text className="text-gray-500">
-                        {item.phoneNumbers[0].number}
-                      </Text>
-                    )}
-                    {item.emails?.length > 0 && (
-                      <Text className="text-gray-400">
-                        {item.emails[0].email}
-                      </Text>
-                    )}
-                  </TouchableOpacity>
-                )}
-              />
-
-              <TouchableOpacity
-                className="p-3 m-4 bg-red-600 rounded-lg"
-                onPress={() => setContactsModalVisible(false)}
-              >
-                <Text className="text-white text-center font-bold">Close</Text>
-              </TouchableOpacity>
-            </SafeAreaView>
-          </Modal>
-        </ScrollView>
-      </KeyboardAvoidingView>
+        {/* OTHER OPTIONS */}
+        <Text className="m-5 mb-0 text-[#28282B] text-lg font-bold">OTHER</Text>
+        <View
+          contentContainerStyle={{ display: "flex" }}
+          className="bg-white m-5 mt-0 rounded-lg border border-[#28282B]"
+        >
+          <TouchableOpacity className="m-2 p-3 flex flex-row gap-4 items-center border-b border-[#CF0F47]">
+            <AntDesign name="infocirlceo" size={24} color="black" />
+            <Text className="text-base">Version</Text>
+            <Text className="ml-auto text-gray-500">v1.0.0</Text>
+          </TouchableOpacity>
+          <TouchableOpacity className="-mt-2 m-2 p-3 flex flex-row gap-4 items-center border-b border-[#CF0F47]">
+            <Ionicons name="globe-outline" size={24} color="black" />
+            <Text className="text-base">Language</Text>
+            <Text className="ml-auto text-gray-500">English</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={handleDeleteAccountConfirmation}
+            className="-mt-2 m-2 p-3 flex flex-row gap-4 items-center"
+          >
+            <FontAwesome name="remove" size={28} color="#C41E3A" />
+            <Text className="text-[#C41E3A]">Delete Account</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
     </SafeAreaView>
   );
 }

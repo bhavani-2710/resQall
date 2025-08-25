@@ -1,5 +1,8 @@
+import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "expo-router";
+import { useEffect } from "react";
 import {
+  ActivityIndicator,
   Image,
   ScrollView,
   StatusBar,
@@ -8,11 +11,30 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import logo from '../assets/images/logo.png';
+import logo from "../assets/images/logo.png";
 
 export default function Index() {
   const router = useRouter();
-  return (
+  const { user, isLoggedIn, authLoading, loadUserProfile } = useAuth();
+
+  const fetchUser = async () => {
+    const savedUID = await AsyncStorage.getItem("userUID");
+    await loadUserProfile(savedUID);
+  };
+
+  useEffect(() => {
+    fetchUser();
+    if (user) router.replace("/home");
+  }, [user]);
+
+  if (authLoading) {
+    return (
+      <SafeAreaView className="flex-1 justify-center items-center bg-[#28282B]">
+        <ActivityIndicator size="large" color="#CF0F47" />
+      </SafeAreaView>
+    );
+  }
+  return !user ? (
     <SafeAreaView className={`bg-[#28282B]`}>
       <ScrollView contentContainerStyle={{ height: "100%" }}>
         <View className="m-2 flex justify-center items-center">
@@ -37,14 +59,13 @@ export default function Index() {
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => router.push("/emergency")}
+              onPress={() => router.push("/(settings)/contacts")}
               className="p-2 my-2 bg-[#000000] border border-[#CF0F47] rounded-lg max-w-fit"
             >
               <Text className="text-lg font-semibold text-[#CF0F47] text-center">
-                Emergency
+                Settings-contacts
               </Text>
             </TouchableOpacity>
-
           </View>
           <View>
             <Text className="text-center text-lg font-semibold my-4 text-white">
@@ -76,5 +97,5 @@ export default function Index() {
         <StatusBar barStyle={"light-content"} backgroundColor={"#000000"} />
       </ScrollView>
     </SafeAreaView>
-  );
+  ) : null;
 }
