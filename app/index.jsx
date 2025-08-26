@@ -1,4 +1,8 @@
 import { useAuth } from "@/context/AuthContext";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Camera } from "expo-camera";
+import * as Location from "expo-location";
+import * as MediaLibrary from "expo-media-library";
 import { useRouter } from "expo-router";
 import { useEffect } from "react";
 import {
@@ -19,12 +23,58 @@ export default function Index() {
 
   const fetchUser = async () => {
     const savedUID = await AsyncStorage.getItem("userUID");
-    await loadUserProfile(savedUID);
+    if (savedUID) {
+      await loadUserProfile(savedUID);
+    }
+  };
+
+  // Check permissions and store result in AsyncStorage
+  const checkPermissions = async () => {
+    const { status: locationStatus } =
+      await Location.getForegroundPermissionsAsync();
+    const { status: cameraStatus } = await Camera.getCameraPermissionsAsync();
+    const { status: audioStatus } =
+      await Camera.getMicrophonePermissionsAsync();
+    const { status: galleryStatus } = await MediaLibrary.getPermissionsAsync();
+
+    const all = {
+      location: locationStatus === "granted",
+      camera: cameraStatus === "granted",
+      audio: audioStatus === "granted",
+      gallery: galleryStatus === "granted",
+    };
+
+    const allGranted = Object.values(all).every(Boolean);
+    await AsyncStorage.setItem(
+      "permissionsGranted",
+      allGranted ? "true" : "false"
+    );
+
+    return allGranted;
   };
 
   useEffect(() => {
     fetchUser();
-    if (user) router.replace("/home");
+  }, []);
+
+  useEffect(() => {
+    const handleFlow = async () => {
+      if (!user) return;
+
+      if (!user.emailVerified) {
+        router.replace("/sign-in");
+        return;
+      }
+
+      const permissionsGranted = await checkPermissions();
+      if (permissionsGranted) {
+        router.replace("/home");
+      } else {
+        router.replace("/(settings)/permissions");
+      }
+    };
+
+    handleFlow();
   }, [user]);
 
   if (authLoading) {

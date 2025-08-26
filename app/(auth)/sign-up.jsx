@@ -57,10 +57,8 @@ const SignUp = () => {
   // STEP 3: Save final profile to Firestore
   const handleSaveProfile = async () => {
     try {
-      console.log(userData);
       signup(userData);
       Alert.alert("Signup Complete!");
-      // router.replace("/home");
     } catch (err) {
       Alert.alert(err.message);
     }

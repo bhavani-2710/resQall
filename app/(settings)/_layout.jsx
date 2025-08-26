@@ -6,6 +6,7 @@ export default function RootLayout() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="contacts" />
       <Stack.Screen name="emergency-code" />
+      <Stack.Screen name="permissions" />
     </Stack>
   );
 }

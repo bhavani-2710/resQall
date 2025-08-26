@@ -31,11 +31,15 @@ export const AuthProvider = ({ children }) => {
   // 🔹 Load Firestore profile using UID
   const loadUserProfile = async (uid) => {
     if (!uid) return null;
+
     try {
       const userSnap = await getDoc(doc(db, "users", uid));
       if (userSnap.exists()) {
         const profile = userSnap.data();
-        setUser(profile);
+        // ✅ Only update if changed
+        if (JSON.stringify(profile) !== JSON.stringify(user)) {
+          setUser(profile);
+        }
         return profile;
       }
       return null;
@@ -51,7 +55,8 @@ export const AuthProvider = ({ children }) => {
       setAuthLoading(true);
       try {
         const storedUID = await AsyncStorage.getItem("userUID");
-        if (storedUID) {
+        if (storedUID && !user) {
+          // prevent repeat calls
           await loadUserProfile(storedUID);
         }
       } catch (err) {
@@ -95,7 +100,7 @@ export const AuthProvider = ({ children }) => {
       );
       router.replace("/sign-in");
     } catch (err) {
-      console.error("❌ Signup failed:", err);
+      console.log("❌ Signup failed:", err);
       throw err;
     } finally {
       setAuthLoading(false);
@@ -128,7 +133,7 @@ export const AuthProvider = ({ children }) => {
       setUser(profileData);
       router.push("/home");
     } catch (err) {
-      console.error("❌ Sign-in error:", err);
+      console.log("❌ Sign-in error:", err);
       Alert.alert(
         "Error Signing In!",
         "Check your credentials or try again later."
@@ -206,7 +211,7 @@ export const AuthProvider = ({ children }) => {
         await deleteDoc(doc(db, "users", currentUser.uid));
         await deleteUser(currentUser);
         console.log("🗑️ User deleted successfully");
-        await AsyncStorage.removeItem("userUID1");
+        await AsyncStorage.removeItem("userUID");
         router.replace("/sign-in");
         return { isDeleted: true };
       } catch (error) {
@@ -221,6 +226,11 @@ export const AuthProvider = ({ children }) => {
           return { isDeleted: false, message: "❌ Error deleting user." };
         }
       }
+    } else {
+      return {
+        isDeleted: false,
+        message: "Please reauthenticate and try again.",
+      };
     }
   };
 
