@@ -94,13 +94,19 @@ export default function Index() {
           <View className="w-3/4">
             <TouchableOpacity
               onPress={() => router.push("/sign-up")}
-              className="p-2 my-2 bg-[#CF0F47] text-[#28282B] rounded-lg"
+              className="p-2 my-2 bg-[#CF0F47] rounded-lg"
             >
-              <Text className="text-lg font-semibold text-center">Sign Up</Text>
+              <Text className="text-lg font-semibold text-[#28282B] text-center">Sign Up</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => router.push("/sign-in")}
+              className="p-2 my-2 bg-[#28282B] border border-[#CF0F47] rounded-lg"
+            >
+              <Text className="text-lg font-semibold  text-[#CF0F47] text-center">Sign In</Text>
             </TouchableOpacity>
 
             {/* Home & Emergency - temporary */}
-            <TouchableOpacity
+            {/* <TouchableOpacity
               onPress={() => router.push("/home")}
               className="p-2 my-2 bg-[#000000] border border-[#CF0F47] rounded-lg max-w-fit"
             >
@@ -115,9 +121,9 @@ export default function Index() {
               <Text className="text-lg font-semibold text-[#CF0F47] text-center">
                 Settings-contacts
               </Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
-          <View>
+          {/* <View>
             <Text className="text-center text-lg font-semibold my-4 text-white">
               <View className="border-b-2 border-[#CF0F47] p-2 mb-1 w-24" />
               {"   "}or{"  "}{" "}
@@ -133,7 +139,7 @@ export default function Index() {
                 Sign In
               </Text>
             </TouchableOpacity>
-          </View>
+          </View> */}
         </View>
 
         {/* IMAGE */}
