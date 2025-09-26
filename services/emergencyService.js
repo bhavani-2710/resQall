@@ -4,7 +4,7 @@ import * as Location from 'expo-location';
 import * as MailComposer from 'expo-mail-composer';
 import * as MediaLibrary from 'expo-media-library';
 import * as SMS from 'expo-sms';
-import { Platform } from 'react-native';
+import { Platform, Alert } from 'react-native';
 
 export class EmergencyService {
   static instance;
@@ -15,7 +15,6 @@ export class EmergencyService {
     }
     EmergencyService.instance = this;
     this.emergencyContacts = [];
-    this.isRecording = false;
     this.loadEmergencyContacts();
   }
 
@@ -41,7 +40,8 @@ export class EmergencyService {
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
-        throw new Error('Location permission not granted');
+        console.warn('Location permission not granted');
+        return null;
       }
 
       const location = await Location.getCurrentPositionAsync({
@@ -50,12 +50,14 @@ export class EmergencyService {
         distanceInterval: 1,
       });
 
+      console.log('Location obtained:', location);
       return location;
     } catch (error) {
       console.error('Failed to get location:', error);
       
       try {
         const lastLocation = await Location.getLastKnownPositionAsync();
+        console.log('Using last known location:', lastLocation);
         return lastLocation;
       } catch (fallbackError) {
         console.error('Failed to get last known location:', fallbackError);
@@ -66,8 +68,11 @@ export class EmergencyService {
 
   async takePhoto(cameraRef) {
     try {
-      if (!cameraRef.current) {
-        throw new Error('Camera not available');
+      console.log('Taking photo with camera:', cameraRef);
+      
+      if (!cameraRef || !cameraRef.current) {
+        console.error('Camera ref not available:', cameraRef);
+        return null;
       }
 
       const { status } = await MediaLibrary.requestPermissionsAsync();
@@ -81,75 +86,81 @@ export class EmergencyService {
         skipProcessing: false,
       });
 
-      if (status === 'granted') {
+      console.log('Photo taken:', photo);
+
+      if (status === 'granted' && photo && photo.uri) {
         await MediaLibrary.saveToLibraryAsync(photo.uri);
       }
 
-      return photo.uri;
+      return photo ? photo.uri : null;
     } catch (error) {
       console.error('Failed to take photo:', error);
       return null;
     }
   }
 
-  async recordVideo(cameraRef) {
-    try {
-      if (!cameraRef.current) {
-        throw new Error('Camera not available');
-      }
-
-      this.isRecording = true;
-      const promise = cameraRef.current.recordAsync({
-        quality: '480p', // Balanced quality for emergency use; adjust as needed
-      });
-
-      await new Promise(resolve => setTimeout(resolve, 10000)); // Record for 10 seconds
-
-      cameraRef.current.stopRecording();
-      const video = await promise;
-
-      this.isRecording = false;
-      return video.uri;
-    } catch (error) {
-      console.error('Failed to record video:', error);
-      if (this.isRecording && cameraRef.current) {
-        try {
-          cameraRef.current.stopRecording();
-        } catch (stopError) {
-          console.error('Failed to stop video recording:', stopError);
-        }
-      }
-      this.isRecording = false;
-      return null;
-    }
-  }
-
   async getDeviceInfo() {
-    return {
+    const info = {
       deviceName: Device.deviceName || 'Unknown Device',
       platform: Platform.OS,
       osVersion: Platform.Version.toString(),
       deviceId: Device.osInternalBuildId || 'Unknown',
     };
+    console.log('Device info:', info);
+    return info;
   }
 
-  async collectEmergencyData(cameraRef) {
+  // Modified to accept audio recording from external source (the component)
+  async collectEmergencyData(cameraRef, audioRecordingCallback = null) {
+    console.log('=== STARTING EMERGENCY DATA COLLECTION ===');
+    console.log('Camera ref received:', cameraRef);
+    
     const timestamp = Date.now();
     
-    const [location, photoUri, videoUri, deviceInfo] = await Promise.all([
-      this.getLocation(),
-      this.takePhoto(cameraRef),
-      this.recordVideo(cameraRef),
-      this.getDeviceInfo(),
-    ]);
+    try {
+      console.log('Collecting emergency data...');
+      
+      // Start all tasks in parallel, but audio recording might be handled externally
+      const locationPromise = this.getLocation();
+      const photoPromise = this.takePhoto(cameraRef);
+      const deviceInfoPromise = this.getDeviceInfo();
+      
+      // If audio recording callback is provided, use it; otherwise skip audio
+      let audioPromise;
+      if (audioRecordingCallback && typeof audioRecordingCallback === 'function') {
+        console.log('Starting audio recording via callback...');
+        audioPromise = audioRecordingCallback(30000); // 30 seconds
+      } else {
+        console.log('No audio recording callback provided, skipping audio');
+        audioPromise = Promise.resolve(null);
+      }
+      
+      const [location, photoUri, audioUri, deviceInfo] = await Promise.all([
+        locationPromise,
+        photoPromise,
+        audioPromise,
+        deviceInfoPromise,
+      ]);
 
-    return {
-      location,
-      photoUri,
-      videoUri,
-      timestamp,
-      deviceInfo,
-    };
+      const data = {
+        location,
+        photoUri,
+        audioUri, // This will be the audio URI from the component or null
+        timestamp,
+        deviceInfo,
+      };
+
+      console.log('=== EMERGENCY DATA COLLECTED ===');
+      console.log('Location:', location ? 'Available' : 'Not available');
+      console.log('Photo:', photoUri ? 'Available' : 'Not available');
+      console.log('Audio:', audioUri ? 'Available' : 'Not available');
+      console.log('===================================');
+
+      return data;
+    } catch (error) {
+      console.error('Error in collectEmergencyData:', error);
+      throw error;
+    }
   }
 
   formatEmergencyMessage(data) {
@@ -168,7 +179,7 @@ Device: ${data.deviceInfo.deviceName}
 Platform: ${data.deviceInfo.platform} ${data.deviceInfo.osVersion}
 
 ${data.photoUri ? '📷 Photo attached' : '📷 Photo not available'}
-${data.videoUri ? '📹 Video recording attached' : '📹 Video not available'}
+${data.audioUri ? '🎤 Audio recording attached (30 seconds)' : '🎤 Audio recording not available'}
 
 If this is a real emergency, please call local emergency services immediately.
 
@@ -189,13 +200,19 @@ Google Maps Link: ${data.location ? `https://maps.google.com/?q=${data.location.
         attachments.push(data.photoUri);
       }
       
-      if (data.videoUri) {
-        attachments.push(data.videoUri);
+      if (data.audioUri) {
+        attachments.push(data.audioUri);
       }
 
-      const recipientEmails = this.emergencyContacts.length > 0 
-        ? this.emergencyContacts.map(contact => contact.email)
-        : ['emergency@example.com'];
+      const recipientEmails = this.emergencyContacts
+        .filter(contact => contact.email && contact.email.trim() !== '')
+        .map(contact => contact.email);
+
+      if (recipientEmails.length === 0) {
+        console.warn('No emergency contact email addresses available');
+        // For testing, you can add a default email
+        recipientEmails.push('test@example.com');
+      }
 
       await MailComposer.composeAsync({
         recipients: recipientEmails,
@@ -221,9 +238,15 @@ Google Maps Link: ${data.location ? `https://maps.google.com/?q=${data.location.
 
       const message = this.formatEmergencyMessage(data);
       
-      const phoneNumbers = this.emergencyContacts.length > 0 
-        ? this.emergencyContacts.map(contact => contact.phone)
-        : ['+1234567890'];
+      const phoneNumbers = this.emergencyContacts
+        .filter(contact => contact.phone && contact.phone.trim() !== '')
+        .map(contact => contact.phone);
+
+      if (phoneNumbers.length === 0) {
+        console.warn('No emergency contact phone numbers available');
+        // For testing, you can add a default number
+        phoneNumbers.push('+1234567890');
+      }
 
       await SMS.sendSMSAsync(phoneNumbers, message);
       return true;
@@ -257,6 +280,10 @@ Google Maps Link: ${data.location ? `https://maps.google.com/?q=${data.location.
   }
 
   async addEmergencyContact(contact) {
+    if (!contact.phone && !contact.email) {
+      throw new Error('Emergency contact must have at least a phone number or email address');
+    }
+
     const newContact = {
       ...contact,
       id: Date.now().toString(),

@@ -11,9 +11,17 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TouchableOpacity,
   Vibration,
   View
 } from 'react-native';
+import { 
+  useAudioRecorder, 
+  AudioModule, 
+  RecordingPresets, 
+  setAudioModeAsync,
+  useAudioRecorderState 
+} from 'expo-audio';
 import EmergencyService from '../../services/emergencyService.js';
 
 const { width, height } = Dimensions.get('window');
@@ -25,10 +33,14 @@ export default function Emergency() {
   const progressAnimation = useRef(new Animated.Value(0)).current;
   const pulseAnimation = useRef(new Animated.Value(1)).current;
 
+  // Audio recording setup with hooks
+  const audioRecorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
+  const recorderState = useAudioRecorderState(audioRecorder);
+
   const [steps, setSteps] = useState([
     { id: 'location', label: 'Getting Location', description: 'Acquiring GPS coordinates...', status: 'pending', progress: 0 },
     { id: 'photo', label: 'Taking Photo', description: 'Capturing environment photo...', status: 'pending', progress: 0 },
-    { id: 'audio', label: 'Recording Audio', description: 'Recording 10 seconds of audio...', status: 'pending', progress: 0 },
+    { id: 'audio', label: 'Recording Audio', description: 'Recording 30 seconds of audio...', status: 'pending', progress: 0 },
     { id: 'email', label: 'Sending Email Alert', description: 'Notifying emergency contacts via email...', status: 'pending', progress: 0 },
     { id: 'sms', label: 'Sending SMS Alert', description: 'Sending SMS to emergency contacts...', status: 'pending', progress: 0 },
   ]);
@@ -38,6 +50,27 @@ export default function Emergency() {
   const [emergencyData, setEmergencyData] = useState(null);
   const [overallProgress, setOverallProgress] = useState(0);
   const [errorMessage, setErrorMessage] = useState('');
+
+  // Initialize audio permissions
+  useEffect(() => {
+    const initializeAudio = async () => {
+      try {
+        const status = await AudioModule.requestRecordingPermissionsAsync();
+        if (!status.granted) {
+          console.warn('Audio recording permission not granted');
+        }
+        
+        await setAudioModeAsync({
+          playsInSilentMode: true,
+          allowsRecording: true,
+        });
+      } catch (error) {
+        console.error('Failed to initialize audio:', error);
+      }
+    };
+
+    initializeAudio();
+  }, []);
 
   // Pulse animation
   useEffect(() => {
@@ -73,6 +106,20 @@ export default function Emergency() {
     });
   };
 
+  // Audio recording function that works with the new expo-audio API
+  const recordEmergencyAudio = async (duration = 30000) => {
+    try {
+      await audioRecorder.prepareToRecordAsync();
+      audioRecorder.record();
+      await new Promise(resolve => setTimeout(resolve, duration));
+      await audioRecorder.stop();
+      return audioRecorder.uri;
+    } catch (error) {
+      console.error('Failed to record audio:', error);
+      return null;
+    }
+  };
+
   const processEmergency = async () => {
     try {
       const emergencyService = EmergencyService.getInstance();
@@ -95,12 +142,12 @@ export default function Emergency() {
 
       setCurrentStep(2);
       updateStepStatus('audio', 'processing');
-      await simulateProgress('audio', 3000);
-      updateStepStatus('audio', 'completed', 100);
-
+      
       if (!cameraRef.current) throw new Error('Camera not available');
-      const data = await emergencyService.collectEmergencyData({ current: cameraRef.current });
+      
+      const data = await emergencyService.collectEmergencyData(cameraRef, recordEmergencyAudio);
       setEmergencyData(data);
+      updateStepStatus('audio', 'completed', 100);
 
       setCurrentStep(3);
       updateStepStatus('email', 'processing');
@@ -130,7 +177,7 @@ export default function Emergency() {
       const currentStepId = steps[currentStep]?.id;
       if (currentStepId) updateStepStatus(currentStepId, 'failed', 0);
       Vibration.vibrate([500, 200, 500]);
-      Alert.alert('Emergency Error', errorMessage, [
+      Alert.alert('Emergency Error', error.message || 'An error occurred', [
         { text: 'Retry', onPress: processEmergency },
         { text: 'Cancel', onPress: () => router.back() },
       ]);
@@ -151,15 +198,6 @@ export default function Emergency() {
     }
   };
 
-  const getProgressBarColor = (status) => {
-    switch (status) {
-      case 'completed': return '#22c55e';
-      case 'failed': return '#ef4444';
-      case 'processing': return '#eab308';
-      default: return '#6b7280';
-    }
-  };
-
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -169,6 +207,7 @@ export default function Emergency() {
             <Text style={styles.header}>Emergency Mode</Text>
             <Text style={styles.subheader}>Processing your emergency alert...</Text>
           </View>
+          
           <View style={styles.progressBarBg}>
             <Animated.View style={[styles.progressBar, { width: progressAnimation.interpolate({ inputRange: [0, 100], outputRange: ['0%', '100%'] }) }]} />
           </View>
