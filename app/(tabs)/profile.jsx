@@ -51,7 +51,7 @@ export default function ProfileScreen() {
   };
 
   return (
-    <SafeAreaView className="bg-[#FFDEDE] pt-12">
+    <SafeAreaView className="bg-[#f1f0f0] pt-12">
       <ScrollView>
         {/* Header */}
         <Text className="text-3xl font-extrabold text-[#28282B] m-auto underline underline-offset-8 mt-6">
@@ -61,14 +61,14 @@ export default function ProfileScreen() {
         <View
           style={{
             height: "100%",
-            backgroundColor: "#FFDEDE",
+            backgroundColor: "#f1f0f0",
           }}
           className="flex gap-2"
         >
           {/* USER DETAILS */}
           <View className="m-4 mb-1 p-5 flex flex-row items-center justify-around gap-1">
             <Ionicons
-              className="m-3 p-3 border border-white bg-[#28282B] rounded-full"
+              className="m-3 p-3 border border-white bg-[#272325] rounded-full"
               name="person"
               size={32}
               color="white"
@@ -155,7 +155,7 @@ export default function ProfileScreen() {
           </Text>
           <View
             contentContainerStyle={{ display: "flex" }}
-            className="bg-white m-5 mt-0 rounded-lg border border-[#28282B]"
+            className="bg-white m-5 mt-0 rounded-lg border border-[#8d8d92]"
           >
             <TouchableOpacity className="m-2 p-3 flex flex-row gap-4 items-center border-b border-[#CF0F47]">
               <AntDesign name="infocirlceo" size={24} color="black" />
