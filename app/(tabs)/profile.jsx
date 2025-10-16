@@ -9,6 +9,7 @@ import {
   View,
 } from "react-native";
 import { useAuth } from "../../context/AuthContext";
+import { LinearGradient } from "expo-linear-gradient";
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -36,9 +37,7 @@ export default function ProfileScreen() {
           onPress: handleDeleteAccount,
         },
       ],
-      {
-        cancelable: true,
-      }
+      { cancelable: true }
     );
   };
 
@@ -46,136 +45,121 @@ export default function ProfileScreen() {
     await changePassword();
     Alert.alert(
       "Password Reset",
-      "A Link has been sent to your registered email for resetting password!"
+      "A link has been sent to your registered email for resetting password!"
     );
   };
 
   return (
-    <SafeAreaView className="bg-[#f1f0f0] pt-12">
+    <SafeAreaView className="bg-black">
       <ScrollView>
-        {/* Header */}
-        <Text className="text-3xl font-extrabold text-[#28282B] m-auto underline underline-offset-8 mt-6">
-          USER PROFILE
-        </Text>
-
-        <View
-          style={{
-            height: "100%",
-            backgroundColor: "#f1f0f0",
-          }}
-          className="flex gap-2"
+        <LinearGradient
+          colors={["#1B1B1B", "#2A2A2A", "#3A3A3A"]} // Dark Professional Gradient
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          className="flex-1 justify-center items-center px-5"
         >
-          {/* USER DETAILS */}
-          <View className="m-4 mb-1 p-5 flex flex-row items-center justify-around gap-1">
-            <Ionicons
-              className="m-3 p-3 border border-white bg-[#272325] rounded-full"
-              name="person"
-              size={32}
-              color="white"
-            />
+          {/* Header */}
+          <Text className="text-3xl font-extrabold text-white m-auto underline underline-offset-8 mt-12">
+            USER PROFILE
+          </Text>
 
-            <View>
-              <Text className="text-xl font-medium max-w-52 text-wrap text-[#28282B]">
-                {user?.name}
-              </Text>
-              <Text className="text-base font-normal max-w-60 text-wrap text-[#28282B]">
-                {user?.email}
-              </Text>
+          <View style={{ height: "100%" }} className="flex gap-2">
+            {/* USER DETAILS */}
+            <View className="m-4 mb-1 p-5 flex flex-row items-center justify-around gap-1">
+              <Ionicons
+                className="m-3 p-3 bg-[#E60023] rounded-full"
+                name="person"
+                size={32}
+                color="white"
+              />
+              <View>
+                <Text className="text-xl font-medium max-w-52 text-wrap text-white">
+                  {user?.name}
+                </Text>
+                <Text className="text-base font-normal max-w-60 text-gray-300">
+                  {user?.email}
+                </Text>
+              </View>
+            </View>
+
+            {/* BORDER LINE */}
+            <View className="flex items-center">
+              <View className="w-11/12 -mt-5 border-b-2 border-gray-300" />
+            </View>
+
+            {/* OPTIONS */}
+            <View className="bg-[#1E1E1E] m-5 rounded-xl shadow-md border border-gray-700">
+              <TouchableOpacity
+                onPress={() => router.push("/(settings)/contacts")}
+                className="m-2 p-3 mb-0 flex flex-row gap-4 items-center border-b border-gray-700"
+              >
+                <AntDesign name="contacts" size={26} color="#E0E0E0" />
+                <Text className="text-base text-gray-100">Edit Contacts</Text>
+                <AntDesign className="ml-auto" name="right" size={22} color="#E0E0E0" />
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => router.push("/(settings)/emergency-code")}
+                className="m-2 p-3 mb-0 flex flex-row gap-4 items-center border-b border-gray-700"
+              >
+                <AntDesign name="edit" size={26} color="#E0E0E0" />
+                <Text className="text-base text-gray-100">Modify Emergency Code</Text>
+                <AntDesign className="ml-auto" name="right" size={22} color="#E0E0E0" />
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => router.push("/(settings)/permissions")}
+                className="m-2 p-3 mb-0 flex flex-row gap-4 items-center border-b border-gray-700"
+              >
+                <Ionicons name="lock-open" size={26} color="#E0E0E0" />
+                <Text className="text-base text-gray-100">Permissions</Text>
+                <AntDesign className="ml-auto" name="right" size={22} color="#E0E0E0" />
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={handleChangePassword}
+                className="m-2 p-3 flex flex-row gap-4 items-center border-b border-gray-700"
+              >
+                <Entypo name="key" size={26} color="#E0E0E0" />
+                <Text className="text-base text-gray-100">Change Password</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={logout}
+                className="-mt-2 m-2 p-3 flex flex-row gap-4 items-center"
+              >
+                <FontAwesome name="sign-out" size={26} color="#E60023" />
+                <Text className="text-[#E60023] font-medium">Sign Out</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* OTHER OPTIONS */}
+            <Text className="m-5 mb-0 text-white text-lg font-bold">
+              OTHER DETAILS
+            </Text>
+            <View className="bg-[#1E1E1E] m-5 mt-0 rounded-xl shadow-md border border-gray-700">
+              <TouchableOpacity className="m-2 p-3 flex flex-row gap-4 items-center border-b border-gray-700">
+                <AntDesign name="infocirlceo" size={24} color="#E0E0E0" />
+                <Text className="text-base text-gray-100">Version</Text>
+                <Text className="ml-auto text-gray-400">v1.0.0</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity className="-mt-2 m-2 p-3 flex flex-row gap-4 items-center border-b border-gray-700">
+                <Ionicons name="globe-outline" size={24} color="#E0E0E0" />
+                <Text className="text-base text-gray-100">Language</Text>
+                <Text className="ml-auto text-gray-400">English</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={handleDeleteAccountConfirmation}
+                className="-mt-2 m-2 p-3 flex flex-row gap-4 items-center"
+              >
+                <FontAwesome name="remove" size={26} color="#E60023" />
+                <Text className="text-[#E60023] font-medium">Delete Account</Text>
+              </TouchableOpacity>
             </View>
           </View>
-
-          {/* BORDER LINE*/}
-          <View className="flex items-center">
-            <View className="w-11/12 -mt-5 border-b-2 border-[#28282B]" />
-          </View>
-
-          {/* OPTIONS */}
-          <View
-            contentContainerStyle={{ display: "flex" }}
-            className="bg-white m-5 rounded-lg border border-[#28282B]"
-          >
-            <TouchableOpacity
-              onPress={() => router.push("/(settings)/contacts")}
-              className="m-2 p-3 mb-0 flex flex-row gap-4 items-center border-b border-[#CF0F47]"
-            >
-              <AntDesign name="contacts" size={28} color="black" />
-              <Text className="text-base">Edit Contacts</Text>
-              <AntDesign
-                className="ml-auto"
-                name="right"
-                size={24}
-                color="black"
-              />
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => router.push("/(settings)/emergency-code")}
-              className="m-2 p-3 mb-0 flex flex-row gap-4 items-center border-b border-[#CF0F47]"
-            >
-              <AntDesign name="edit" size={28} color="black" />
-              <Text className="text-base">Modify Emergency Code</Text>
-              <AntDesign
-                className="ml-auto"
-                name="right"
-                size={24}
-                color="black"
-              />
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => router.push("/(settings)/permissions")}
-              className="m-2 p-3 mb-0 flex flex-row gap-4 items-center border-b border-[#CF0F47]"
-            >
-              <Ionicons name="lock-open" size={28} color="black" />
-              <Text className="text-base">Permissions</Text>
-              <AntDesign
-                className="ml-auto"
-                name="right"
-                size={24}
-                color="black"
-              />
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={handleChangePassword}
-              className="m-2 p-3 flex flex-row gap-4 items-center border-b border-[#CF0F47]"
-            >
-              <Entypo name="key" size={28} color="black" />
-              <Text className="text-base">Change Password</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={logout}
-              className="-mt-2 m-2 p-3 flex flex-row gap-4 items-center"
-            >
-              <FontAwesome name="sign-out" size={28} color="#C41E3A" />
-              <Text className="text-[#C41E3A]">Sign Out</Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* OTHER OPTIONS */}
-          <Text className="m-5 mb-0 text-[#28282B] text-lg font-bold">
-            OTHER
-          </Text>
-          <View
-            contentContainerStyle={{ display: "flex" }}
-            className="bg-white m-5 mt-0 rounded-lg border border-[#8d8d92]"
-          >
-            <TouchableOpacity className="m-2 p-3 flex flex-row gap-4 items-center border-b border-[#CF0F47]">
-              <AntDesign name="infocirlceo" size={24} color="black" />
-              <Text className="text-base">Version</Text>
-              <Text className="ml-auto text-gray-500">v1.0.0</Text>
-            </TouchableOpacity>
-            <TouchableOpacity className="-mt-2 m-2 p-3 flex flex-row gap-4 items-center border-b border-[#CF0F47]">
-              <Ionicons name="globe-outline" size={24} color="black" />
-              <Text className="text-base">Language</Text>
-              <Text className="ml-auto text-gray-500">English</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={handleDeleteAccountConfirmation}
-              className="-mt-2 m-2 p-3 flex flex-row gap-4 items-center"
-            >
-              <FontAwesome name="remove" size={28} color="#C41E3A" />
-              <Text className="text-[#C41E3A]">Delete Account</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+        </LinearGradient>
       </ScrollView>
     </SafeAreaView>
   );
