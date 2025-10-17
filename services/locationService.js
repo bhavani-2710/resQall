@@ -1,22 +1,24 @@
-import * as Location from 'expo-location';
-import { Alert } from 'react-native';
+import * as Location from "expo-location";
+import { Alert } from "react-native";
 
 export async function getLocation() {
-  let { status } = await Location.requestForegroundPermissionsAsync();
-  if (status !== 'granted') {
-    Alert.alert('Permission Denied', 'Location permission is required.');
-    return null;
-  }
-
   try {
+    const { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert("Location permission denied");
+      return null;
+    }
+
     const location = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.High,
+      accuracy: Location.Accuracy.Highest,
     });
+
     return {
       latitude: location.coords.latitude,
       longitude: location.coords.longitude,
     };
   } catch (error) {
-      throw new Error('Could not fetch location.');
+    console.error("Failed to get location:", error);
+    return null;
   }
 }

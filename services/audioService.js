@@ -1,32 +1,40 @@
-import { Audio } from 'expo-audio';
-import { Alert } from 'react-native';
+import { AudioModule, RecordingPresets, setAudioModeAsync, useAudioRecorder } from "expo-audio";
+import { uploadAudioToCloudinary } from "@/utils/cloudinary";
+import { Alert } from "react-native";
 
-export async function recordAudio(duration) {
-  const { status } = await Audio.requestPermissionsAsync();
-  if (status !== 'granted') {
-    Alert.alert('Permission Denied', 'Microphone permission is required.');
-    return null;
-  }
-
+export async function recordAudio(recorder, duration = 10000) {
   try {
-    await Audio.setAudioModeAsync({
-      allowsRecordingIOS: true,
-      playsInSilentModeIOS: true,
+    // 1️⃣ Request microphone permission
+    const { granted } = await AudioModule.requestRecordingPermissionsAsync();
+    if (!granted) {
+      Alert.alert("Permission to access microphone was denied");
+      return null;
+    }
+
+    // 2️⃣ Configure audio mode
+    await setAudioModeAsync({
+      playsInSilentMode: true,
+      allowsRecording: true,
     });
 
-    const recording = new Audio.Recording();
-    await recording.prepareToRecordAsync(Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY);
-    await recording.startAsync();
+    await recorder.prepareToRecordAsync();
 
-    // Wait for the specified duration
-    await new Promise(resolve => setTimeout(resolve, duration));
+    // 4️⃣ Start recording
+    recorder.record();
 
-    await recording.stopAndUnloadAsync();
-    const uri = recording.getURI();
-    console.log('Recording stopped and stored at', uri);
-    return uri;
+    // 5️⃣ Stop after specified duration
+    await new Promise((resolve) => setTimeout(resolve, duration));
+
+    await recorder.stop();
+    const uri = recorder.uri;
+
+    // 6️⃣ Upload to Cloudinary
+    const audioUrl = await uploadAudioToCloudinary(uri);
+
+    return audioUrl;
   } catch (error) {
-    console.error('Failed to record audio:', error);
-    throw new Error('Could not record audio.');
+    console.error("Failed to record audio:", error);
+    Alert.alert("Audio recording failed", error.message);
+    return null;
   }
 }
