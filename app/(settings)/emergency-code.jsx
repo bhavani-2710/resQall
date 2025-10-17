@@ -13,6 +13,7 @@ import {
   View,
 } from "react-native";
 import { useAuth } from "../../context/AuthContext";
+import { LinearGradient } from "expo-linear-gradient";
 
 const EmergencyCodeSettings = () => {
   const router = useRouter();
@@ -24,67 +25,76 @@ const EmergencyCodeSettings = () => {
       Alert.alert("Emergency code is required.");
       return;
     }
-    // Save code
     await updateEmergencyCode(user.uid, emergencyCode.trim());
     setEmergencyCode("");
+    Alert.alert("Emergency code updated successfully!");
   };
 
   return (
-    <SafeAreaView className="bg-[#FFDEDE] flex-1 px-5 pt-12">
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={{ flex: 1 }}
+    <SafeAreaView className="flex-1">
+      <LinearGradient
+        colors={["#1B1B1B", "#2A2A2A", "#3A3A3A"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        className="flex-1 px-5 pt-12"
       >
-        <ScrollView
-          contentContainerStyle={{ paddingBottom: 50, flexGrow: 1 }}
-          keyboardShouldPersistTaps="handled"
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={{ flex: 1 }}
         >
-          {/* Back Button */}
-          <View className="flex flex-row items-center gap-5">
-            <TouchableOpacity
-              onPress={() => router.back()}
-              className="p-2 rounded-full border-2 border-[#CF0F47] bg-white"
-            >
-              <Ionicons name="chevron-back" size={24} color="#28282B" />
-            </TouchableOpacity>
-          </View>
+          <ScrollView
+            contentContainerStyle={{ paddingBottom: 50, flexGrow: 1 }}
+            keyboardShouldPersistTaps="handled"
+          >
+            {/* Back Button */}
+            <View className="flex flex-row items-center gap-5 mb-6">
+              <TouchableOpacity
+                onPress={() => router.back()}
+                className="p-2 rounded-full border-2 border-[#E60023] bg-[#2A2A2A]"
+              >
+                <Ionicons name="chevron-back" size={24} color="#FFFFFF" />
+              </TouchableOpacity>
+            </View>
 
             {/* Header */}
-            <Text className="flex text-3xl font-extrabold text-[#28282B] my-5">
+            <Text className="text-3xl font-extrabold text-white mb-8">
               Edit Emergency Code
             </Text>
 
-
-          <Text className="text-xl font-bold text-[#CF0F47] my-2">
-            Emergency Code
-          </Text>
-          <View className="border border-[#28282B] text-[#28282B] rounded-lg p-3 mb-6 bg-gray-200">
-            <Text className="text-[#28282B] font-medium text-lg">
-              {user.emergencyCode || "No saved Emergency Code"}
+            {/* Current Emergency Code */}
+            <Text className="text-xl font-bold text-[#E0E0E0] mb-2">
+              Current Emergency Code
             </Text>
-          </View>
-          <Text className="text-xl font-bold text-[#CF0F47] mb-2">
-            New Emergency Code
-          </Text>
-          <TextInput
-            className="border border-[#28282B] text-[#28282B] rounded-lg p-3 mb-6 bg-white font-medium text-lg"
-            placeholder="Enter your new emergency code"
-            placeholderTextColor="#797979"
-            value={emergencyCode}
-            onChangeText={setEmergencyCode}
-          />
+            <View className="border border-gray-600 rounded-lg p-3 mb-6 bg-[#2A2A2A]">
+              <Text className="text-white font-medium text-lg">
+                {user.emergencyCode || "No saved Emergency Code"}
+              </Text>
+            </View>
 
-          {/* Proceed Button */}
-          <TouchableOpacity
-            onPress={handleProceed}
-            className="p-3 bg-[#CF0F47] rounded-lg"
-          >
-            <Text className="text-xl font-semibold text-center text-white">
-              Save Changes
+            {/* New Emergency Code */}
+            <Text className="text-xl font-bold text-[#E0E0E0] mb-2">
+              New Emergency Code
             </Text>
-          </TouchableOpacity>
-        </ScrollView>
-      </KeyboardAvoidingView>
+            <TextInput
+              className="border border-gray-600 rounded-lg p-3 mb-6 bg-[#1E1E1E] text-white font-medium text-lg"
+              placeholder="Enter your new emergency code"
+              placeholderTextColor="#797979"
+              value={emergencyCode}
+              onChangeText={setEmergencyCode}
+            />
+
+            {/* Save Button */}
+            <TouchableOpacity
+              onPress={handleProceed}
+              className="p-3 bg-[#E60023] rounded-lg"
+            >
+              <Text className="text-xl font-semibold text-center text-white">
+                Save Changes
+              </Text>
+            </TouchableOpacity>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </LinearGradient>
     </SafeAreaView>
   );
 };

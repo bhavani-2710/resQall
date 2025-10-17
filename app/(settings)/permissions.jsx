@@ -13,6 +13,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 
 export default function SettingsScreen() {
   const router = useRouter();
@@ -24,11 +25,9 @@ export default function SettingsScreen() {
   });
 
   const checkPermissions = async () => {
-    const { status: locationStatus } =
-      await Location.getForegroundPermissionsAsync();
+    const { status: locationStatus } = await Location.getForegroundPermissionsAsync();
     const { status: cameraStatus } = await Camera.getCameraPermissionsAsync();
-    const { status: audioStatus } =
-      await Camera.getMicrophonePermissionsAsync();
+    const { status: audioStatus } = await Camera.getMicrophonePermissionsAsync();
     const { status: galleryStatus } = await MediaLibrary.getPermissionsAsync();
 
     const all = {
@@ -40,12 +39,8 @@ export default function SettingsScreen() {
 
     setPermissions(all);
 
-    // Only mark "permissionsGranted" = true if ALL are granted
     const allGranted = Object.values(all).every(Boolean);
-    await AsyncStorage.setItem(
-      "permissionsGranted",
-      allGranted ? "true" : "false"
-    );
+    await AsyncStorage.setItem("permissionsGranted", allGranted ? "true" : "false");
   };
 
   useEffect(() => {
@@ -63,7 +58,6 @@ export default function SettingsScreen() {
     checkPermissions();
   };
 
-  // Icons map for each permission
   const icons = {
     location: <Ionicons name="location" size={24} color="#5f8d4e" />,
     camera: <Ionicons name="camera" size={24} color="#4169E1" />,
@@ -72,63 +66,65 @@ export default function SettingsScreen() {
   };
 
   return (
-    <SafeAreaView className="bg-[#FFDEDE] flex-1 px-5 pt-12">
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={{ flex: 1 }}
+    <SafeAreaView className="flex-1">
+      <LinearGradient
+        colors={["#1B1B1B", "#2A2A2A", "#3A3A3A"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        className="flex-1 px-5 pt-12"
       >
-        {/* Back Button */}
-        <View className="flex flex-row items-center gap-5">
-          <TouchableOpacity
-            onPress={() => router.back()}
-            className="p-2 rounded-full border-2 border-[#CF0F47] bg-white"
-          >
-            <Ionicons name="chevron-back" size={24} color="#28282B" />
-          </TouchableOpacity>
-        </View>
-
-        {/* Header */}
-        <Text className="flex text-3xl font-extrabold text-[#28282B] my-8 mx-1">
-          Edit Emergency Contacts
-        </Text>
-
-        {Object.keys(permissions).map((perm) => (
-          <View
-            key={perm}
-            className="flex-row items-center justify-between bg-white rounded-2xl px-4 py-3 mb-4 shadow-md"
-          >
-            <View className="flex-row items-center space-x-3">
-              {icons[perm]}
-              <Text className="text-[#28282B] capitalize text-lg">
-                {"  "}
-                {perm}
-              </Text>
-            </View>
-
-            {permissions[perm] ? (
-              <Text className="text-green-600 text-lg font-semibold">
-                Granted
-              </Text>
-            ) : (
-              <TouchableOpacity
-                className="bg-[#CF0F47] px-5 py-2 rounded-full"
-                onPress={() => requestAgain(perm)}
-              >
-                <Text className="text-white font-medium">Grant</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-        ))}
-
-        <TouchableOpacity
-          className="mt-10 bg-[#CF0F47] px-6 py-3 rounded-2xl shadow-lg"
-          onPress={() => router.replace("/home")}
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={{ flex: 1 }}
         >
-          <Text className="text-white text-center text-lg font-semibold">
-            Go to Home
+          {/* Back Button */}
+          <View className="flex flex-row items-center gap-5 mb-6">
+            <TouchableOpacity
+              onPress={() => router.back()}
+              className="p-2 rounded-full border-2 border-[#E60023] bg-[#2A2A2A]"
+            >
+              <Ionicons name="chevron-back" size={24} color="#FFFFFF" />
+            </TouchableOpacity>
+          </View>
+
+          {/* Header */}
+          <Text className="text-3xl font-extrabold text-white mb-8">
+            App Permissions
           </Text>
-        </TouchableOpacity>
-      </KeyboardAvoidingView>
+
+          {Object.keys(permissions).map((perm) => (
+            <View
+              key={perm}
+              className="flex-row items-center justify-between bg-[#3a3a3a] rounded-xl px-5 py-3 mb-4"
+            >
+              <View className="flex-row items-center space-x-3">
+                {icons[perm]}
+                <Text className="text-white capitalize text-lg">{"  "}{perm}</Text>
+              </View>
+
+              {permissions[perm] ? (
+                <Text className="text-green-500 text-lg font-semibold">Granted</Text>
+              ) : (
+                <TouchableOpacity
+                  className="bg-[#E60023] px-5 py-2 rounded-full"
+                  onPress={() => requestAgain(perm)}
+                >
+                  <Text className="text-white font-medium">Grant</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          ))}
+
+          <TouchableOpacity
+            className="mt-10 bg-[#E60023] px-6 py-3 rounded-2xl shadow-lg"
+            onPress={() => router.replace("/home")}
+          >
+            <Text className="text-white text-center text-lg font-semibold">
+              Go to Home
+            </Text>
+          </TouchableOpacity>
+        </KeyboardAvoidingView>
+      </LinearGradient>
     </SafeAreaView>
   );
 }

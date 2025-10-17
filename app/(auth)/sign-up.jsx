@@ -147,8 +147,8 @@ const SignUp = () => {
                                 field === "name"
                                   ? "Full Name"
                                   : field === "email"
-                                  ? "Email Address"
-                                  : "Password"
+                                    ? "Email Address"
+                                    : "Password"
                               }
                               placeholderTextColor="#9ca3af"
                             />
@@ -210,8 +210,8 @@ const SignUp = () => {
                               field === "name"
                                 ? "Name"
                                 : field === "phone"
-                                ? "Phone"
-                                : "Email"
+                                  ? "Phone"
+                                  : "Email"
                             }
                             placeholderTextColor="#9ca3af"
                             value={contact[field]}
@@ -248,7 +248,11 @@ const SignUp = () => {
                         className="p-3 bg-[#CF0F47] rounded-lg mb-4"
                       >
                         <View className="flex flex-row justify-center gap-2">
-                          <AntDesign name="pluscircle" size={16} color="white" />
+                          <AntDesign
+                            name="pluscircle"
+                            size={16}
+                            color="white"
+                          />
                           <Text className="text-white text-center font-medium text-sm">
                             Add Another Contact
                           </Text>
@@ -333,57 +337,62 @@ const SignUp = () => {
               </View>
             </View>
 
-            {/* Modal */}
+            {/* Modal: Contact Picker */}
             <Modal
               visible={contactsModalVisible}
               animationType="slide"
               onRequestClose={() => setContactsModalVisible(false)}
             >
-              <SafeAreaView className="flex-1 bg-white">
-                <Text className="text-xl font-bold text-center my-4">
+              <SafeAreaView className="flex-1 bg-[#1B1B1B]">
+                <Text className="text-xl font-bold text-center text-white my-4">
                   Select a Contact
                 </Text>
+
                 <TextInput
-                  className="mx-4 mb-4 border border-gray-400 rounded-lg px-3 py-2"
+                  className="mx-4 mb-4 border border-gray-500 rounded-lg px-3 py-2 text-white bg-[#2A2A2A]"
                   placeholder="Search Contacts"
                   placeholderTextColor="#9ca3af"
                   value={contactSearch}
                   onChangeText={setContactSearch}
                 />
+
                 <FlatList
                   data={filteredContacts}
                   keyExtractor={(item) => item.id}
                   renderItem={({ item }) => (
                     <TouchableOpacity
-                      className="px-4 py-1 border-b border-gray-300"
+                      className="px-4 py-3 border-b border-gray-600"
                       onPress={() => {
-                        const phone = item.phoneNumbers[0]?.number || "";
+                        const phone = item.phoneNumbers?.[0]?.number || "";
                         const name = item.name || "";
-                        const email = item.emails
-                          ? item.emails[0]?.email || ""
-                          : "";
-                        const updated = [...userData.contacts];
-                        updated[targetIndex] = { name, phone, email };
-                        setUserData({ ...userData, contacts: updated });
+                        const email = item.emails?.[0]?.email || "";
+
+                        const updated = [...userData];
+                        updated[targetIndex] = {
+                          ...updated[targetIndex],
+                          name,
+                          phone,
+                          email,
+                        };
+                        setUserData(updated);
                         setContactsModalVisible(false);
                       }}
                     >
-                      <Text className="text-lg font-normal text-[#28282B]">
-                        {item.name}
-                      </Text>
+                      <Text className="text-white text-lg">{item.name}</Text>
                       {item.phoneNumbers?.length > 0 && (
-                        <Text className="text-gray-500">
+                        <Text className="text-gray-400">
                           {item.phoneNumbers[0].number}
                         </Text>
                       )}
                       {item.emails?.length > 0 && (
-                        <Text className="text-gray-400">
+                        <Text className="text-gray-500">
                           {item.emails[0].email}
                         </Text>
                       )}
                     </TouchableOpacity>
                   )}
                 />
+
                 <TouchableOpacity
                   className="p-3 m-4 bg-red-600 rounded-lg"
                   onPress={() => setContactsModalVisible(false)}

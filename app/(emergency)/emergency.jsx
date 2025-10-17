@@ -19,6 +19,7 @@ import { takePhoto } from "@/services/cameraService";
 import { getLocation } from "@/services/locationService";
 import { loadEmergencyContacts, saveSOS } from "@/services/emergencyService";
 import { RecordingPresets, useAudioRecorder } from "expo-audio";
+import { LinearGradient } from "expo-linear-gradient";
 
 export default function Emergency() {
   const router = useRouter();
@@ -179,19 +180,17 @@ export default function Emergency() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <ScrollView
-        contentContainerStyle={{
-          flexGrow: 1,
-          justifyContent: "center",
-          alignItems: "center",
-          padding: 6,
-        }}
-      >
-        <View className="w-full max-w-md bg-gray-100 rounded-xl p-6 shadow-md mt-10">
+    <LinearGradient
+      colors={["#fff0f0", "#ffffff"]} // soft warm background
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      className="w-full flex-1 justify-center items-center px-2"
+    >
+      <SafeAreaView className="w-full flex justify-center items-center">
+        <View className="w-full max-w-sm rounded-2xl p-6 shadow-md mt-10 bg-white">
           <View className="items-center mb-4">
-            <Ionicons name="warning" size={48} color="#FF6347" />
-            <Text className="text-2xl font-bold text-red-500 mt-2">
+            <Ionicons name="warning" size={48} color="#E60023" />
+            <Text className="text-2xl font-bold text-[#E60023] mt-2">
               Emergency Mode
             </Text>
             <Text className="text-gray-600 text-center mt-1">
@@ -201,7 +200,7 @@ export default function Emergency() {
 
           <View className="w-full h-2 bg-gray-200 rounded-full overflow-hidden mt-2 mb-2">
             <Animated.View
-              className="h-2 bg-red-500 rounded-full"
+              className="h-2 bg-[#E60023] rounded-full"
               style={{
                 width: progressAnimation.interpolate({
                   inputRange: [0, 100],
@@ -210,7 +209,7 @@ export default function Emergency() {
               }}
             />
           </View>
-          <Text className="text-right text-red-500 font-bold mt-1">
+          <Text className="text-right text-[#E60023] font-bold mt-1">
             {Math.round(overallProgress)}%
           </Text>
 
@@ -218,7 +217,7 @@ export default function Emergency() {
             {steps.map((step, idx) => (
               <View
                 key={step.id}
-                className={`flex-row items-center py-2 border-b ${
+                className={`flex-row items-center px-5 py-2 border-b ${
                   currentStep === idx
                     ? "bg-red-100 rounded-lg"
                     : "border-gray-200"
@@ -228,7 +227,7 @@ export default function Emergency() {
                 <Text
                   className={`ml-4 flex-1 ${
                     currentStep === idx
-                      ? "text-red-500 font-bold"
+                      ? "text-[#E60023] font-bold"
                       : "text-gray-700"
                   }`}
                 >
@@ -257,15 +256,15 @@ export default function Emergency() {
             </View>
           )}
         </View>
-      </ScrollView>
 
-      {permission?.granted && (
-        <CameraView
-          ref={cameraRef}
-          className="absolute w-1 h-1 left-[-1000px] top-[-1000px]"
-          facing="back"
-        />
-      )}
-    </SafeAreaView>
+        {permission?.granted && (
+          <CameraView
+            ref={cameraRef}
+            className="absolute w-1 h-1 left-[-1000px] top-[-1000px]"
+            facing="back"
+          />
+        )}
+      </SafeAreaView>
+    </LinearGradient>
   );
 }
