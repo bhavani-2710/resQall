@@ -27,7 +27,6 @@ const EmergencyCodeSettings = () => {
     }
     await updateEmergencyCode(user.uid, emergencyCode.trim());
     setEmergencyCode("");
-    Alert.alert("Emergency code updated successfully!");
   };
 
   return (

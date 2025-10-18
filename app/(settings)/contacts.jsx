@@ -102,7 +102,6 @@ const ContactsSettings = () => {
       return;
     }
     updateEmergencyContacts(user.uid, userData);
-    Alert.alert("Contacts updated successfully!");
   };
 
   return (
