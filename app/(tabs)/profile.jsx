@@ -51,7 +51,7 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView className="bg-black">
-      <ScrollView>
+      <ScrollView showsVerticalScrollIndicator={false}>
         <LinearGradient
           colors={["#1B1B1B", "#2A2A2A", "#3A3A3A"]} // Dark Professional Gradient
           start={{ x: 0, y: 0 }}

@@ -15,6 +15,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { LinearGradient } from "expo-linear-gradient";
 import logo from "../assets/images/logo.png";
 
 export default function Index() {
@@ -79,9 +80,14 @@ export default function Index() {
 
   if (authLoading) {
     return (
-      <SafeAreaView className="flex-1 justify-center items-center bg-[#28282B]">
-        <ActivityIndicator size="large" color="#CF0F47" />
-      </SafeAreaView>
+        <LinearGradient
+          colors={["#1B1B1B", "#2A2A2A", "#3A3A3A"]} // Dark Professional Gradient
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          className="flex-1 justify-center items-center px-5"
+        >
+          <ActivityIndicator size="large" color="#E60023" />
+        </LinearGradient>
     );
   }
   return !user ? (
