@@ -12,7 +12,7 @@ export async function takePhoto(cameraRef) {
       return null;
     }
 
-    const photo = await cameraRef.current.takePictureAsync({ quality: 0.7 });
+    const photo = await cameraRef.current.takePictureAsync({ shutterSound: false, quality: 0.7 });
     const mediaStatus = await MediaLibrary.requestPermissionsAsync();
 
     if (mediaStatus.granted && photo.uri) {
