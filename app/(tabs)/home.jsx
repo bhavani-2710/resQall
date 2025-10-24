@@ -2,9 +2,12 @@ import { useRouter } from "expo-router";
 import { View, Text, TouchableOpacity } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { FontAwesome5 } from "@expo/vector-icons";
+import useWakeWord from "../../hooks/useWakeWord";
 
 export default function HomeScreen() {
   const router = useRouter();
+
+  useWakeWord(); // starts background wake word listener
 
   const handleSOS = () => {
     router.push("/emergency");
@@ -26,7 +29,8 @@ export default function HomeScreen() {
           🚨 Emergency SOS 🚨
         </Text>
         <Text className="mt-3 text-base text-[#333] text-center max-w-xs opacity-80">
-          Press the button immediately if you;&apos;re in danger or need urgent help
+          Press the button immediately if you;&apos;re in danger or need urgent
+          help
         </Text>
       </View>
 

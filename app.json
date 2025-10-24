@@ -17,7 +17,11 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#000000"
       },
-      "permissions": ["RECORD_AUDIO", "READ_CONTACTS", "CAMERA"],
+      "permissions": [
+        "RECORD_AUDIO",
+        "READ_CONTACTS",
+        "CAMERA"
+      ],
       "package": "com.batl.resQall",
       "name": "ResQall",
       "edgeToEdgeEnabled": true,
@@ -53,7 +57,8 @@
         {
           "contactsPermission": "Allow $(PRODUCT_NAME) to access your contacts."
         }
-      ]
+      ],
+      "expo-asset"
     ],
     "experiments": {
       "typedRoutes": true

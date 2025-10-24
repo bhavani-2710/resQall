@@ -96,13 +96,17 @@ export default function Index() {
               onPress={() => router.push("/sign-up")}
               className="p-2 my-2 bg-[#CF0F47] rounded-lg"
             >
-              <Text className="text-lg font-semibold text-[#28282B] text-center">Sign Up</Text>
+              <Text className="text-lg font-semibold text-[#28282B] text-center">
+                Sign Up
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => router.push("/sign-in")}
               className="p-2 my-2 bg-[#28282B] border border-[#CF0F47] rounded-lg"
             >
-              <Text className="text-lg font-semibold  text-[#CF0F47] text-center">Sign In</Text>
+              <Text className="text-lg font-semibold  text-[#CF0F47] text-center">
+                Sign In
+              </Text>
             </TouchableOpacity>
 
             {/* Home & Emergency - temporary */}
