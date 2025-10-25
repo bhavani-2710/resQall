@@ -29,7 +29,7 @@ export default function HomeScreen() {
           🚨 Emergency SOS 🚨
         </Text>
         <Text className="mt-3 text-base text-[#333] text-center max-w-xs opacity-80">
-          Press the button immediately if you;&apos;re in danger or need urgent
+          Press the button immediately if you&apos;re in danger or need urgent
           help
         </Text>
       </View>

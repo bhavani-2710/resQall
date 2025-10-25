@@ -147,7 +147,7 @@ export const AuthProvider = ({ children }) => {
     await signOut(auth);
     setUser(null);
     await AsyncStorage.removeItem("userUID");
-    router.replace("/");
+    router.replace("/(auth)/sign-in");
   };
 
   // 🔹 Reload user profile manually

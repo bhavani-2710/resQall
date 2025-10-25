@@ -331,9 +331,7 @@ const SignUp = () => {
                       }
                     />
 
-                    <TouchableOpacity
-                      onPress={handleSaveProfile}
-                    >
+                    <TouchableOpacity onPress={handleSaveProfile}>
                       <LinearGradient
                         colors={["#D7263D", "#FF4C60"]}
                         start={{ x: 0, y: 0 }}
@@ -409,15 +407,20 @@ const SignUp = () => {
                         const name = item.name || "";
                         const email = item.emails?.[0]?.email || "";
 
-                        const updated = [...userData];
-                        updated[targetIndex] = {
-                          ...updated[targetIndex],
+                        const updatedContacts = [...userData.contacts];
+
+                        updatedContacts[targetIndex] = {
+                          ...(updatedContacts[targetIndex] || {}),
                           name,
                           phone,
                           email,
                         };
-                        console.log(updated);
-                        setUserData(updated);
+
+                        setUserData({
+                          ...userData,
+                          contacts: updatedContacts,
+                        });
+
                         setContactsModalVisible(false);
                       }}
                     >
