@@ -21,7 +21,7 @@ export default function useWakeWordService() {
     const sendEmergencyNotification = async () => {
       await Notifications.scheduleNotificationAsync({
         content: {
-          title: "🚨 Wake Word Detected!",
+          title: "🚨 Emergency Code Detected!",
           body: "Tap to open SOS screen immediately.",
           data: { action: "open_emergency" },
         },
@@ -89,7 +89,7 @@ export default function useWakeWordService() {
     const options = {
       taskName: "ResQallListener",
       taskTitle: "ResQall is listening",
-      taskDesc: "Say your secret phrase to trigger SOS.",
+      taskDesc: "Say your emergency code to trigger SOS.",
       taskIcon: { name: "ic_launcher", type: "mipmap" },
       color: "#ff0000",
       parameters: {},

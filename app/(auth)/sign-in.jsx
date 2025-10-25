@@ -27,7 +27,7 @@ const SignIn = () => {
         Alert.alert("Error", "Please fill in all fields");
         return;
       }
-      login(email, password);
+      await login(email, password);
     } catch (error) {
       console.error(error);
       Alert.alert("Login Failed", error.message);
@@ -124,8 +124,8 @@ const SignIn = () => {
                           colors={["#D7263D", "#FF4C60"]}
                           start={{ x: 0, y: 0 }}
                           end={{ x: 1, y: 1 }}
+                          className="p-3"
                           style={{
-                            paddingVertical: 14,
                             alignItems: "center",
                             borderRadius: 12,
                           }}
@@ -142,9 +142,9 @@ const SignIn = () => {
 
               {/* Divider */}
               <View className="flex-row items-center justify-center my-8 w-full">
-                <View className="flex-1 h-[1px] bg-[#2E2E2E]" />
+                <View className="flex-1 h-[1px] bg-[#686868]" />
                 <Text className="mx-3 text-[#9EA0A4]">or</Text>
-                <View className="flex-1 h-[1px] bg-[#2E2E2E]" />
+                <View className="flex-1 h-[1px] bg-[#686868]" />
               </View>
 
               {/* Sign Up Link */}

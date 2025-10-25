@@ -111,11 +111,11 @@ const SignUp = () => {
           >
             <View className="m-4 flex-1 justify-center items-center">
               <Image source={logo} style={{ height: 100, width: 100 }} />
-              <Text className="text-xl text-center text-white font-bold my-8">
+              <Text className="text-2xl text-center text-white font-bold my-8">
                 Let’s get you started!
               </Text>
 
-              <View className="w-5/6 bg-[#33333A]/40 rounded-2xl p-5 shadow-lg">
+              <View className="w-11/12 bg-[#33333A]/40 rounded-2xl p-5 shadow-lg">
                 {/* STEP 1 */}
                 {currentStep === 1 && (
                   <Formik
@@ -162,11 +162,22 @@ const SignUp = () => {
 
                         <TouchableOpacity
                           onPress={handleSubmit}
-                          className="p-3 my-8 bg-[#CF0F47] rounded-lg shadow-md"
+                          className="my-8"
                         >
-                          <Text className="text-xl font-semibold text-center text-white">
-                            Next: Emergency Contacts
-                          </Text>
+                          <LinearGradient
+                            colors={["#D7263D", "#FF4C60"]}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 1 }}
+                            style={{
+                              paddingVertical: 14,
+                              alignItems: "center",
+                              borderRadius: 12,
+                            }}
+                          >
+                            <Text className="text-white text-lg font-semibold">
+                              Next: Emergency Contacts
+                            </Text>
+                          </LinearGradient>
                         </TouchableOpacity>
                       </View>
                     )}
@@ -245,18 +256,29 @@ const SignUp = () => {
                             ],
                           });
                         }}
-                        className="p-3 bg-[#CF0F47] rounded-lg mb-4"
+                        className="mb-4"
                       >
-                        <View className="flex flex-row justify-center gap-2">
-                          <AntDesign
-                            name="pluscircle"
-                            size={16}
-                            color="white"
-                          />
-                          <Text className="text-white text-center font-medium text-sm">
-                            Add Another Contact
-                          </Text>
-                        </View>
+                        <LinearGradient
+                          colors={["#D7263D", "#FF4C60"]}
+                          start={{ x: 0, y: 0 }}
+                          end={{ x: 1, y: 1 }}
+                          className="p-3"
+                          style={{
+                            alignItems: "center",
+                            borderRadius: 8,
+                          }}
+                        >
+                          <View className="flex flex-row justify-center gap-2">
+                            <AntDesign
+                              name="pluscircle"
+                              size={16}
+                              color="white"
+                            />
+                            <Text className="text-white text-center font-medium text-sm">
+                              Add Another Contact
+                            </Text>
+                          </View>
+                        </LinearGradient>
                       </TouchableOpacity>
                     )}
 
@@ -273,11 +295,21 @@ const SignUp = () => {
                           setCurrentStep(3);
                         }
                       }}
-                      className="p-3 bg-[#CF0F47] rounded-lg shadow-md"
                     >
-                      <Text className="text-xl font-semibold text-center text-white">
-                        Next: Emergency Code
-                      </Text>
+                      <LinearGradient
+                        colors={["#D7263D", "#FF4C60"]}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        className="p-3"
+                        style={{
+                          alignItems: "center",
+                          borderRadius: 12,
+                        }}
+                      >
+                        <Text className="text-xl font-semibold text-center text-white">
+                          Next: Emergency Code
+                        </Text>
+                      </LinearGradient>
                     </TouchableOpacity>
                   </View>
                 )}
@@ -301,11 +333,21 @@ const SignUp = () => {
 
                     <TouchableOpacity
                       onPress={handleSaveProfile}
-                      className="p-3 bg-[#CF0F47] rounded-lg shadow-md"
                     >
-                      <Text className="text-xl font-semibold text-center text-white">
-                        Finish Signup
-                      </Text>
+                      <LinearGradient
+                        colors={["#D7263D", "#FF4C60"]}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        className="p-3"
+                        style={{
+                          alignItems: "center",
+                          borderRadius: 12,
+                        }}
+                      >
+                        <Text className="text-xl font-semibold text-center text-white">
+                          Finish Signup
+                        </Text>
+                      </LinearGradient>
                     </TouchableOpacity>
                   </View>
                 )}
@@ -374,6 +416,7 @@ const SignUp = () => {
                           phone,
                           email,
                         };
+                        console.log(updated);
                         setUserData(updated);
                         setContactsModalVisible(false);
                       }}

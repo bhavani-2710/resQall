@@ -15,7 +15,7 @@ export default function HomeScreen() {
 
   return (
     <LinearGradient
-      colors={["#ffe6e6", "#ffffff", "#ffe6e6"]} // soft warm background
+      colors={["#fff6f6", "#ffffff", "#fff6f6"]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       className="flex-1 justify-center items-center px-5"
