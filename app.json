@@ -20,7 +20,11 @@
       "permissions": [
         "RECORD_AUDIO",
         "READ_CONTACTS",
-        "CAMERA"
+        "CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.READ_CONTACTS",
+        "android.permission.WRITE_CONTACTS"
       ],
       "package": "com.batl.resQall",
       "name": "ResQall",
@@ -63,6 +67,12 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "c61357e9-e5e2-450d-ad4a-f3960fee0e54"
+      }
     }
   }
 }
