@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "resQall",
+    "name": "ResQall",
     "slug": "resQall",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -58,7 +58,8 @@
           "contactsPermission": "Allow $(PRODUCT_NAME) to access your contacts."
         }
       ],
-      "expo-asset"
+      "expo-asset",
+      "expo-notifications"
     ],
     "experiments": {
       "typedRoutes": true

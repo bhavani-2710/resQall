@@ -4,7 +4,7 @@ import { Camera } from "expo-camera";
 import * as Location from "expo-location";
 import * as MediaLibrary from "expo-media-library";
 import { useRouter } from "expo-router";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   ActivityIndicator,
   Image,
@@ -17,10 +17,42 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import logo from "../assets/images/logo.png";
+import * as Notifications from "expo-notifications";
+import * as Constants from "expo-constants";
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: false,
+    shouldShowBanner: true,
+    shouldSetBadge: false,
+  }),
+});
 
 export default function Index() {
+  const [expoPushToken, setExpoPushToken] = useState("");
   const router = useRouter();
   const { user, isLoggedIn, authLoading, loadUserProfile } = useAuth();
+
+  useEffect(() => {
+    const registerPush = async () => {
+      const { status } = await Notifications.requestPermissionsAsync();
+      if (status !== "granted") {
+        alert("Please enable notifications for ResQall SOS alerts.");
+        return;
+      }
+
+      const projectId = Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
+
+      const tokenData = await Notifications.getExpoPushTokenAsync({
+        projectId, // from app.json or expo.dev
+      });
+      setExpoPushToken(tokenData.data);
+      console.log("Expo Push Token:", tokenData.data);
+    };
+
+    registerPush();
+  }, []);
 
   const fetchUser = async () => {
     const savedUID = await AsyncStorage.getItem("userUID");
