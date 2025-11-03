@@ -129,7 +129,7 @@ export default function Emergency() {
       setCurrentStep(2);
       updateStepStatus("audio", "processing");
 
-      const audioUri = await recordAudio(audioRecorder, 30000);
+      const audioUri = await recordAudio(audioRecorder, 15000);
       updateStepStatus("audio", "completed", 100);
 
       // ----------------- Step 4: Send SOS -----------------
