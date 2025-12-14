@@ -1,50 +1,103 @@
-# Welcome to your Expo app 👋
+# 🚨 ResQall – Voice-Activated Hidden SOS System
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+ResQall is a **voice-activated personal safety application** designed to provide a **fast, discreet, and reliable SOS mechanism** during emergency situations. The app operates silently in the background and can be triggered using a **secret voice command**, allowing users to request help even when physical interaction with the device is not possible.
 
-## Get started
+---
 
-1. Install dependencies
+## 📌 Features
 
-   ```bash
-   npm install
-   ```
+- 🎙️ **Voice-Activated SOS Trigger**
+  - Uses a secret voice command detected via OpenAI Whisper.
+- 📍 **Real-Time GPS Tracking**
+  - Captures and shares the user’s live location during emergencies.
+- 🎧 **Ambient Audio Recording**
+  - Records surrounding audio for situational awareness.
+- 📸 **Camera Snapshot**
+  - Automatically captures an image at SOS activation.
+- 🔔 **Instant Emergency Alerts**
+  - Sends alerts via SMS, push notifications, and automated emails.
+- ☁️ **Secure Cloud Storage**
+  - Stores SOS data securely using Firebase Firestore & Storage.
+- ⚡ **Lightweight Background Service**
+  - Optimized for minimal battery and resource consumption.
+- 🔒 **Privacy & Security Focused**
+  - End-to-end encryption and secure authentication.
 
-2. Start the app
+---
 
-   ```bash
-   npx expo start
-   ```
+## 🛠️ Technology Stack
 
-In the output, you'll find options to open the app in a
+### **Frontend**
+- React Native
+- JavaScript
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+### **Database & Storage**
+- Firebase Firestore
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+### **API Integrations**
+- Picovoice Porcupine – Voice recognition
+- Google Maps API – Real-time GPS tracking
+- SMS API (Twilio) – Emergency SMS alerts
+- Zapier – Automated email notifications
 
-## Get a fresh project
+### **Security**
+- Firebase Authentication
+- End-to-end encryption
+- HTTPS communication
+- Firebase Security Rules
 
-When you're ready, run:
+---
 
-```bash
-npm run reset-project
+## 🏗️ System Architecture
+
+1. User registers and configures emergency contacts and secret voice command.
+2. App runs silently in the background.
+3. Secret voice command is detected using Picovoice Porcupine.
+4. SOS is triggered automatically.
+5. Location, audio, and image are captured.
+6. Data is stored in Firebase Firestore & Storage.
+7. Alerts are sent via SMS, push notifications, and email (Zapier).
+8. Emergency contacts receive real-time SOS details.
+
+---
+
+## 📂 Project Structure
+
+```plaintext
+ResQall/
+│
+├── app/                     # App entry & navigation (Expo / RN routing)
+├── assets/                  # Images, icons, fonts, static resources
+├── components/              # Reusable UI components
+├── config/                  # Configuration files (Firebase, API keys, constants)
+├── context/                 # Global state management (Auth, User, SOS context)
+├── hooks/                   # Custom React hooks (voice listener, location, permissions)
+├── services/                # External services & integrations
+├── utils/                   # Helper functions & utilities
+│
+├── .gitignore               # Git ignored files
+├── app.json                 # Expo app configuration
+├── tsconfig.json            # TypeScript configuration
+└── README.md                # Project documentation
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## 📊 Future Enhancements
+- AI-based distress detection without voice commands
+- Wearable device integration
+- Offline SOS fallback mechanism
+- Multilingual voice command support
+- Emergency service (police/ambulance) integration
 
-## Learn more
+## 👥 Target Users
+- Women
+- Children
+- Elderly individuals
+- Travelers
+- Individuals in high-risk environments
 
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## ✨ Acknowledgements
+- Picovoice Porcupine
+- Firebase
+- Zapier
+- Google Maps Platform
+- Cloudinary
